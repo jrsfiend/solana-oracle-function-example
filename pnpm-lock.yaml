@@ -18,8 +18,8 @@ dependencies:
     specifier: ^2.3.6
     version: 2.3.6
   '@switchboard-xyz/solana.js':
-    specifier: ^2.7.1
-    version: 2.7.1
+    specifier: 2.8.0-beta.0
+    version: 2.8.0-beta.0
 
 devDependencies:
   '@types/bn.js':
@@ -37,6 +37,12 @@ devDependencies:
   chai:
     specifier: ^4.3.4
     version: 4.3.4
+  chalk:
+    specifier: ^4
+    version: 4.1.2
+  dotenv:
+    specifier: ^16.3.1
+    version: 16.3.1
   mocha:
     specifier: ^9.0.3
     version: 9.0.3
@@ -494,8 +500,8 @@ packages:
       yaml: 2.3.2
     dev: false
 
-  /@switchboard-xyz/solana.js@2.7.1:
-    resolution: {integrity: sha512-NsFDpIsWmXKlKkDIRMi48IRPKTC7kZGAqleOzF4p3wihYpFIzuaSSqEvrWNza/W8X2xaY59UWd4rmthX2Wip8g==}
+  /@switchboard-xyz/solana.js@2.8.0-beta.0:
+    resolution: {integrity: sha512-21hr1saqkkUV8NYVLcSfvH0D8I488VM0CQgnF8qpNnQWYsDTkfiEuItxT/iOi6oh9NfL/8k3X7TuNyH7rC9CkQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       '@coral-xyz/anchor': 0.28.0
@@ -890,7 +896,6 @@ packages:
   /dotenv@16.3.1:
     resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
     engines: {node: '>=12'}
-    dev: false
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}

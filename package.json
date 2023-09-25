@@ -11,7 +11,7 @@
     "@solana/spl-token": "^0.3.6",
     "@solana/web3.js": "^1.78.0",
     "@switchboard-xyz/common": "^2.3.6",
-    "@switchboard-xyz/solana.js": "^2.7.1"
+    "@switchboard-xyz/solana.js": "2.8.0-beta.0"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",
@@ -19,6 +19,8 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^20.4.0",
     "chai": "^4.3.4",
+    "chalk": "^4",
+    "dotenv": "^16.3.1",
     "mocha": "^9.0.3",
     "rimraf": "^5.0.1",
     "ts-mocha": "^10.0.0",

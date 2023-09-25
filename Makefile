@@ -2,7 +2,7 @@
 # (-include to ignore error if it does not exist)
 -include .env
 
-.PHONY: build clean publish
+.PHONY: build publish
 
 # Variables
 DOCKERHUB_ORGANIZATION ?= switchboardlabs
@@ -49,6 +49,8 @@ measurement: check_docker_env
 	@docker stop my-switchboard-function > /dev/null
 	@docker rm my-switchboard-function > /dev/null
 
-# Task to clean up the compiled rust application
-clean:
-	cargo clean
+docker_build_01_ts: check_docker_env
+	docker buildx build --pull --platform linux/amd64 \
+		-f ./switchboard-functions/01_basic_oracle_function_ts/Dockerfile \
+		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:typescript \
+		./switchboard-functions/01_basic_oracle_function_ts

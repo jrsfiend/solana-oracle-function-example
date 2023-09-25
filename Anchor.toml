@@ -9,13 +9,13 @@ basic_oracle = "3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr"
 basic_oracle = "3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
-
 
 [scripts]
 test = "pnpm exec ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
-
+init = "tsx ./scripts/initialize.ts"
+watch = "tsx ./scripts/watch.ts"
 
 [test.validator]
 url = "https://api.devnet.solana.com"
