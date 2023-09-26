@@ -55,7 +55,7 @@ pub mod task_runner_oracle {
         }
 
         let mut name = [0u8; 32];
-        name.clone_from_slice(&params.name);
+        name[0..params.name.len()].clone_from_slice(&params.name);
 
         let mut ipfs_hash = [0u8; 32];
         ipfs_hash.clone_from_slice(&params.ipfs_hash);
@@ -89,12 +89,26 @@ pub mod task_runner_oracle {
         Ok(())
     }
 
-    pub fn remove_feed(ctx: Context<RemoveFeed>, idx: u32) -> anchor_lang::Result<()> {
+    pub fn remove_feed(
+        ctx: Context<RemoveFeed>,
+        idx: u32,
+        ipfs_hash: Option<Vec<u8>>,
+    ) -> anchor_lang::Result<()> {
         let oracle = &mut ctx.accounts.oracle.load_mut()?;
 
-        if oracle.feeds[idx as usize].ipfs_hash == [0u8; 32] {
+        if let Some(ipfs_hash_vec) = ipfs_hash.as_ref() {
+            if ipfs_hash_vec.len() != 32 {
+                return Err(error!(OracleError::ArrayOverflow));
+            }
+            let mut ipfs_hash = [0u8; 32];
+            ipfs_hash.clone_from_slice(ipfs_hash_vec);
+
+            if oracle.feeds[idx as usize].ipfs_hash != ipfs_hash {
+                return Err(error!(OracleError::DataFeedHashMismatch));
+            }
+        } else if oracle.feeds[idx as usize].ipfs_hash == [0u8; 32] {
             return Err(error!(OracleError::DataFeedMissingAtIdx));
-        }
+        };
 
         oracle.feeds[idx as usize] = Default::default();
 
@@ -106,24 +120,18 @@ pub mod task_runner_oracle {
         params: SaveFeedResultParams,
     ) -> anchor_lang::Result<()> {
         let oracle = &mut ctx.accounts.oracle.load_mut()?;
-        let idx = params.idx as usize;
 
-        // If ipfs_hash was provided, validate it matches the oracle's idx
-        if let Some(ipfs_hash_vec) = params.ipfs_hash.as_ref() {
-            if ipfs_hash_vec.len() != 32 {
-                return Err(error!(OracleError::ArrayOverflow));
-            }
-            let mut ipfs_hash = [0u8; 32];
-            ipfs_hash.clone_from_slice(ipfs_hash_vec);
+        oracle.save_result(params.idx as usize, params.result, params.ipfs_hash)?;
 
-            if oracle.feeds[idx].ipfs_hash != ipfs_hash {
-                return Err(error!(OracleError::DataFeedHashMismatch));
-            }
-        } else if oracle.feeds[idx].ipfs_hash == [0u8; 32] {
-            return Err(error!(OracleError::DataFeedMissingAtIdx));
-        }
+        msg!(
+            "Data feed {} updated with result {}",
+            params.idx,
+            params.result
+        );
 
-        oracle.feeds[idx].save_result(params.result)?;
+        // msg!("Sanity check: {}", {
+        //     oracle.feeds[params.idx as usize].history[0].value
+        // },);
 
         Ok(())
     }
@@ -204,7 +212,6 @@ pub struct AddFeed<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(params: u32)] // rpc parameters hint
 pub struct RemoveFeed<'info> {
     #[account(
         seeds = [PROGRAM_SEED],

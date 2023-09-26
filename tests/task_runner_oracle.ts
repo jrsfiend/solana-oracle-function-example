@@ -4,25 +4,23 @@ import type { TaskRunnerOracle } from "../target/types/task_runner_oracle";
 import type { Program } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
 import { Keypair, SystemProgram } from "@solana/web3.js";
-import { parseRawMrEnclave } from "@switchboard-xyz/common";
+import { sleep } from "@switchboard-xyz/common";
 import type { FunctionAccount } from "@switchboard-xyz/solana.js";
-import { SwitchboardWallet } from "@switchboard-xyz/solana.js";
 import {
-  AttestationProgramStateAccount,
-  AttestationQueueAccount,
-  type BootstrappedAttestationQueue,
-  SwitchboardProgram,
-  types,
+  SwitchboardWallet,
+  attestationTypes,
 } from "@switchboard-xyz/solana.js";
+import { type BootstrappedAttestationQueue } from "@switchboard-xyz/solana.js";
+import { assert } from "chai";
+import { MRENCLAVE, setupTest } from "./utils";
 
 const unixTimestamp = () => Math.floor(Date.now() / 1000);
 
-const MRENCLAVE = parseRawMrEnclave(
-  "0x44e8f2f806229322780fbddff3e46dd23896e3f00d630fbf026ce36314c0fee1",
-  true
-);
-
 describe("task_runner_oracle", () => {
+  let switchboard: BootstrappedAttestationQueue;
+  let wallet: SwitchboardWallet;
+  let functionAccount: FunctionAccount;
+
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
@@ -37,35 +35,33 @@ describe("task_runner_oracle", () => {
     [Buffer.from("TASKRUNNERORACLE")],
     program.programId
   )[0];
+  console.log(`programStatePubkey: ${programStatePubkey}`);
 
   const oracleKeypair = Keypair.generate();
+  console.log(`oraclePubkey: ${oracleKeypair.publicKey}`);
 
-  let switchboard: BootstrappedAttestationQueue;
-  let wallet: SwitchboardWallet;
-  let functionAccount: FunctionAccount;
+  const firstFeedIpfsHash = Buffer.from(
+    "MyFirstDataFeed-IpfsHash".padEnd(32, " ")
+  ).slice(0, 32);
 
   before(async () => {
-    const switchboardProgram = await SwitchboardProgram.fromProvider(
-      program.provider as anchor.AnchorProvider
-    );
-
-    await AttestationProgramStateAccount.getOrCreate(switchboardProgram);
-
-    switchboard = await AttestationQueueAccount.bootstrapNewQueue(
-      switchboardProgram
-    );
-
-    console.log(`programStatePubkey: ${programStatePubkey}`);
+    switchboard = await setupTest(program.provider as anchor.AnchorProvider);
+    console.log(`Attestation Queue: ${switchboard.attestationQueue.publicKey}`);
 
     [wallet] = await SwitchboardWallet.create(
       switchboard.program,
       switchboard.attestationQueue.publicKey,
       payer,
-      "MySharedWallet",
+      "TaskRunnerOracleWallet",
       16
     );
 
     console.log(`wallet: ${wallet.publicKey}`);
+
+    // Kind of annoying, the function is a PDA derived from the payer and recentSlot
+    // So we need to wait for the recentSlot to tick over before we can create the function.
+    // We could manually provide the incremented recent slot, but this is easier.
+    await sleep(3000);
 
     [functionAccount] =
       await switchboard.attestationQueue.account.createFunction(
@@ -78,9 +74,9 @@ describe("task_runner_oracle", () => {
           mrEnclave: MRENCLAVE,
           authority: programStatePubkey,
         },
-        wallet
+        wallet,
+        { skipPreflight: true }
       );
-
     console.log(`functionAccount: ${functionAccount.publicKey}`);
   });
 
@@ -116,10 +112,131 @@ describe("task_runner_oracle", () => {
         console.error(err);
         throw err;
       });
-    console.log("Your transaction signature", tx);
+    console.log(`[TX] initialize: ${tx}`);
   });
 
-  // TODO: add data feed
-  // TODO: remove data feed
-  // TODO: save a data feed result and check the idxs updated
+  it("Adds a data feed", async () => {
+    const tx = await program.methods
+      .addFeed({
+        idx: 0,
+        name: Buffer.from("First Feed").slice(0, 32),
+        ipfsHash: firstFeedIpfsHash,
+        updateInterval: 10,
+      })
+      .accounts({
+        program: programStatePubkey,
+        oracle: oracleKeypair.publicKey,
+        authority: payer,
+      })
+      .rpc();
+    console.log(`[TX] add_feed: ${tx}`);
+
+    const oracleState = await program.account.myOracleState.fetch(
+      oracleKeypair.publicKey
+    );
+    assert(
+      Buffer.compare(
+        Buffer.from(oracleState.feeds[0].ipfsHash),
+        firstFeedIpfsHash
+      ) === 0
+    );
+  });
+
+  it("Saves a result to our data feed", async () => {
+    const preOracleState = await program.account.myOracleState.fetch(
+      oracleKeypair.publicKey
+    );
+
+    const securedSigner = anchor.web3.Keypair.generate();
+
+    const rewardAddress =
+      await switchboard.program.mint.getOrCreateAssociatedUser(payer);
+
+    const functionState = await functionAccount.loadData();
+
+    // TODO: generate function verify ixn
+    const functionVerifyIxn = attestationTypes.functionVerify(
+      switchboard.program,
+      {
+        params: {
+          observedTime: new anchor.BN(unixTimestamp()),
+          nextAllowedTimestamp: new anchor.BN(unixTimestamp() + 100),
+          isFailure: false,
+          mrEnclave: Array.from(MRENCLAVE),
+        },
+      },
+      {
+        function: functionAccount.publicKey,
+        functionEnclaveSigner: securedSigner.publicKey,
+        verifier: switchboard.verifier.publicKey,
+        verifierSigner: switchboard.verifier.signer.publicKey,
+        attestationQueue: switchboard.attestationQueue.publicKey,
+        escrowWallet: functionState.escrowWallet,
+        escrowTokenWallet: functionState.escrowTokenWallet,
+        receiver: rewardAddress,
+        verifierPermission: switchboard.verifier.permissionAccount.publicKey,
+        tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+      }
+    );
+
+    const tx = await program.methods
+      .saveFeedResult({
+        idx: 0,
+        ipfsHash: firstFeedIpfsHash,
+        result: new anchor.BN(10),
+      })
+      .accounts({
+        program: programStatePubkey,
+        oracle: oracleKeypair.publicKey,
+        switchboardFunction: functionAccount.publicKey,
+        enclaveSigner: securedSigner.publicKey,
+      })
+      .preInstructions([functionVerifyIxn])
+      .signers([switchboard.verifier.signer, securedSigner])
+      .rpc({ skipPreflight: true });
+
+    console.log(`[TX] save_result: ${tx}`);
+
+    await sleep(1000);
+    const oracleState = await program.account.myOracleState.fetch(
+      oracleKeypair.publicKey
+    );
+    const firstFeed = oracleState.feeds[0];
+    const firstValue: { value: anchor.BN; timestamp: anchor.BN } =
+      firstFeed.history[firstFeed.historyIdx - 1];
+
+    assert(firstValue.value.eq(new anchor.BN(10)), "Data Feed result mismatch");
+  });
+
+  // // TODO: remove data feed
+  it("Removes a data feed", async () => {
+    const preOracleState = await program.account.myOracleState.fetch(
+      oracleKeypair.publicKey
+    );
+
+    const tx = await program.methods
+      // .removeFeed(0, Buffer.from(firstFeedIpfsHash))
+      .removeFeed(0, null)
+      .accounts({
+        program: programStatePubkey,
+        oracle: oracleKeypair.publicKey,
+        authority: payer,
+      })
+      .rpc();
+    console.log(`[TX] remove_feed: ${tx}`);
+
+    await sleep(1000);
+
+    const oracleState = await program.account.myOracleState.fetch(
+      oracleKeypair.publicKey
+    );
+    const firstFeed = oracleState.feeds[0];
+    assert(
+      Buffer.compare(
+        Buffer.from(firstFeed.ipfsHash),
+        Buffer.from(new Uint8Array(32))
+      ) === 0,
+      "Data Feed not removed"
+    );
+  });
 });

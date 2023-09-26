@@ -95,14 +95,11 @@ impl Default for DataFeed {
 }
 impl DataFeed {
     pub fn save_result(&mut self, result: u64) -> anchor_lang::Result<()> {
-        let curr_history_idx = self.history_idx as usize;
-        let history_idx = curr_history_idx + 1 % DATA_FEED_HISTORY_SIZE;
-
-        self.history[history_idx] = DataFeedHistoryRow {
+        self.history[self.history_idx as usize] = DataFeedHistoryRow {
             value: result,
             timestamp: Clock::get()?.unix_timestamp,
         };
-        self.history_idx = history_idx as u32;
+        self.history_idx += 1 % DATA_FEED_HISTORY_SIZE as u32;
 
         // TODO: calculate the median from the last 9 samples
         // TODO: calculate the TWAP from the last 9 samples

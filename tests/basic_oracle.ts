@@ -1,33 +1,23 @@
 // eslint-disable-next-line node/no-unpublished-import
 import type { BasicOracle } from "../target/types/basic_oracle";
 
-import { printLogs } from "./utils";
+import { MRENCLAVE, printLogs, setupTest, unixTimestamp } from "./utils";
 
 import type { Program } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
-import { parseRawMrEnclave, sleep } from "@switchboard-xyz/common";
+import { sleep } from "@switchboard-xyz/common";
 import type { FunctionAccount, MrEnclave } from "@switchboard-xyz/solana.js";
 import { SwitchboardWallet } from "@switchboard-xyz/solana.js";
 import {
-  AttestationProgramStateAccount,
-  AttestationQueueAccount,
   attestationTypes,
   type BootstrappedAttestationQueue,
-  SwitchboardProgram,
-  types,
 } from "@switchboard-xyz/solana.js";
 
-const unixTimestamp = () => Math.floor(Date.now() / 1000);
-
-// vv1gTnfuUiroqgJHS4xsRASsRQqqixCv1su85VWvcP9
-
-const MRENCLAVE = parseRawMrEnclave(
-  "0x44e8f2f806229322780fbddff3e46dd23896e3f00d630fbf026ce36314c0fee1",
-  true
-);
-const emptyEnclave: number[] = new Array(32).fill(0);
-
 describe("basic_oracle", () => {
+  let switchboard: BootstrappedAttestationQueue;
+  let wallet: SwitchboardWallet;
+  let functionAccount: FunctionAccount;
+
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
@@ -41,37 +31,25 @@ describe("basic_oracle", () => {
     [Buffer.from("BASICORACLE")],
     program.programId
   )[0];
+  console.log(`programStatePubkey: ${programStatePubkey}`);
 
   const oraclePubkey = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("ORACLE_V1_SEED")],
     program.programId
   )[0];
-
-  let switchboard: BootstrappedAttestationQueue;
-  let wallet: SwitchboardWallet;
-  let functionAccount: FunctionAccount;
+  console.log(`oraclePubkey: ${oraclePubkey}`);
 
   before(async () => {
-    const switchboardProgram = await SwitchboardProgram.fromProvider(
-      program.provider as anchor.AnchorProvider
-    );
-
-    await AttestationProgramStateAccount.getOrCreate(switchboardProgram);
-
-    switchboard = await AttestationQueueAccount.bootstrapNewQueue(
-      switchboardProgram
-    );
-
-    console.log(`programStatePubkey: ${programStatePubkey}`);
+    switchboard = await setupTest(program.provider as anchor.AnchorProvider);
+    console.log(`Attestation Queue: ${switchboard.attestationQueue.publicKey}`);
 
     [wallet] = await SwitchboardWallet.create(
       switchboard.program,
       switchboard.attestationQueue.publicKey,
       payer,
-      "MySharedWallet",
+      "BasicOracleFunctionWallet",
       16
     );
-
     console.log(`wallet: ${wallet.publicKey}`);
 
     [functionAccount] =
@@ -87,7 +65,6 @@ describe("basic_oracle", () => {
         },
         wallet
       );
-
     console.log(`functionAccount: ${functionAccount.publicKey}`);
   });
 
