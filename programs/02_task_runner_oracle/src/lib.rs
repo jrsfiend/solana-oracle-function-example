@@ -127,6 +127,31 @@ pub mod task_runner_oracle {
 
         Ok(())
     }
+
+    pub fn save_feed_results(
+        ctx: Context<SaveFeedResult>,
+        params: Vec<SaveFeedResultParams>,
+    ) -> anchor_lang::Result<()> {
+        let oracle = &mut ctx.accounts.oracle.load_mut()?;
+        for save_result in params {
+            match oracle.save_result(
+                save_result.idx as usize,
+                save_result.result,
+                save_result.ipfs_hash,
+            ) {
+                Ok(_) => {}
+                Err(e) => {
+                    msg!(
+                        "failed to save feed result for idx {}: {:?}",
+                        save_result.idx,
+                        e
+                    );
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]

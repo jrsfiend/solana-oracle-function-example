@@ -26,6 +26,31 @@ pub struct MyOracleState {
     // Data
     pub feeds: [DataFeed; MAX_NUM_DATA_FEEDS],
 }
+impl MyOracleState {
+    pub fn save_result(
+        &mut self,
+        idx: usize,
+        result: u64,
+        ipfs_hash: Option<Vec<u8>>,
+    ) -> anchor_lang::Result<()> {
+        // If ipfs_hash was provided, validate it matches the oracle's idx
+        if let Some(ipfs_hash_vec) = ipfs_hash.as_ref() {
+            if ipfs_hash_vec.len() != 32 {
+                return Err(error!(OracleError::ArrayOverflow));
+            }
+            let mut ipfs_hash = [0u8; 32];
+            ipfs_hash.clone_from_slice(ipfs_hash_vec);
+
+            if self.feeds[idx].ipfs_hash != ipfs_hash {
+                return Err(error!(OracleError::DataFeedHashMismatch));
+            }
+        } else if self.feeds[idx].ipfs_hash == [0u8; 32] {
+            return Err(error!(OracleError::DataFeedMissingAtIdx));
+        };
+
+        self.feeds[idx].save_result(result)
+    }
+}
 
 // Is i128 the best type for this?
 // u64 might be good enough.
