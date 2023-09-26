@@ -1,5 +1,13 @@
-import { BN } from "@coral-xyz/anchor";
-import { TransactionInstruction } from "@solana/web3.js";
+import { BN, Program } from "@coral-xyz/anchor";
+import {
+  OracleDataBorsh,
+  OracleDataWithTradingSymbol,
+  TradingSymbol,
+  TradingSymbolJSON,
+} from "./sdk/types";
+import { BasicOracle } from "./types";
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { fromJSON } from "./sdk/types/TradingSymbol";
 import { FunctionRunner } from "@switchboard-xyz/solana.js/functions";
 
 interface Ticker {
@@ -17,24 +25,41 @@ interface Ticker {
   closeTime: number; // ms
 }
 
-interface OracleDataBorsh {
-  oracleTimestamp: BN;
-  price: BN;
-  volume1hr: BN;
-  volume24hr: BN;
-  twap1hr: BN;
-  twap24hr: BN;
+// interface OracleDataBorsh {
+//   oracleTimestamp: BN;
+//   price: BN;
+//   volume1hr: BN;
+//   volume24hr: BN;
+//   twap1hr: BN;
+//   twap24hr: BN;
+// }
+
+// type TradingSymbol =
+//   | { unknown: {} }
+//   | { btc: {} }
+//   | { usdc: {} }
+//   | { eth: {} }
+//   | { sol: {} }
+//   | { doge: {} };
+
+export function convertSymbol(symbol: string): TradingSymbolJSON {
+  switch (symbol) {
+    case "BTCUSDT":
+      return TradingSymbol.Btc;
+    case "USDCUSDT":
+      return TradingSymbol.Usdc;
+    case "ETHUSDT":
+      return TradingSymbol.Eth;
+    case "SOLUSDT":
+      return TradingSymbol.Sol;
+    case "DOGEUSDT":
+      return TradingSymbol.Doge;
+    default:
+      return TradingSymbol.Unknown;
+  }
 }
 
-type TradingSymbol =
-  | { unknown: {} }
-  | { btc: {} }
-  | { usdc: {} }
-  | { eth: {} }
-  | { sol: {} }
-  | { doge: {} };
-
-export function convertSymbol(symbol: string): TradingSymbol {
+export function convertSymbolEnum(symbol: string) {
   switch (symbol) {
     case "BTCUSDT":
       return { btc: {} };
@@ -50,10 +75,6 @@ export function convertSymbol(symbol: string): TradingSymbol {
       return { unknown: {} };
   }
 }
-export interface OracleDataWithTradingSymbol {
-  symbol: TradingSymbol;
-  data: OracleDataBorsh;
-}
 
 class IndexData {
   constructor(
@@ -62,26 +83,20 @@ class IndexData {
     readonly d: Ticker
   ) {}
 
-  toOracleDataBorsh(): OracleDataBorsh {
-    // const oracleTimestamp = Date.now();
-    // const price = parseFloat(this.hr.lastPrice);
-    // const volume1hr = parseFloat(this.hr.volume);
-    // const volume24hr = parseFloat(this.d.volume);
-    // const twap1hr = parseFloat(this.hr.weightedAvgPrice);
-    // const twap24hr = parseFloat(this.d.weightedAvgPrice);
-
-    return {
-      oracleTimestamp: new BN(Math.floor(Date.now() / 1000)),
-      price: new BN(0),
-      volume1hr: new BN(0),
-      volume24hr: new BN(0),
-      twap1hr: new BN(0),
-      twap24hr: new BN(0),
-    };
+  toOracleDataBorsh(timestamp: number): OracleDataBorsh {
+    return new OracleDataBorsh({
+      oracleTimestamp: new BN(timestamp),
+      price: formatToNineDecimalPrecision(this.hr.lastPrice),
+      volume1hr: formatToNineDecimalPrecision(this.hr.volume),
+      volume24hr: formatToNineDecimalPrecision(this.d.volume),
+      twap1hr: formatToNineDecimalPrecision(this.hr.weightedAvgPrice),
+      twap24hr: formatToNineDecimalPrecision(this.d.weightedAvgPrice),
+    });
   }
 }
 
 export class Binance {
+  private fetchTimestamp = Math.floor(Date.now() / 1000);
   constructor(
     public readonly btcUsdt: IndexData,
     public readonly usdcUsdt: IndexData,
@@ -131,4 +146,58 @@ export class Binance {
 
     return new Binance(data[0], data[1], data[2], data[3], data[4]);
   }
+
+  async toInstruction(
+    runner: FunctionRunner,
+    program: Program<BasicOracle>
+  ): Promise<TransactionInstruction> {
+    return await program.methods
+      .refreshOracles({
+        rows: [
+          {
+            symbol: {
+              btc: {},
+            },
+            data: this.btcUsdt.toOracleDataBorsh(this.fetchTimestamp),
+          },
+          {
+            symbol: {
+              usdc: {},
+            },
+            data: this.usdcUsdt.toOracleDataBorsh(this.fetchTimestamp),
+          },
+          {
+            symbol: {
+              eth: {},
+            },
+            data: this.ethUsdt.toOracleDataBorsh(this.fetchTimestamp),
+          },
+        ],
+      })
+      .accounts({
+        program: PublicKey.findProgramAddressSync(
+          [Buffer.from("BASICORACLE")],
+          program.programId
+        )[0],
+        oracle: PublicKey.findProgramAddressSync(
+          [Buffer.from("ORACLE_V1_SEED")],
+          program.programId
+        )[0],
+        switchboardFunction: runner.functionKey,
+        enclaveSigner: runner.signer,
+      })
+      .instruction();
+  }
+}
+function formatToNineDecimalPrecision(input: string): BN {
+  // Parse the input string as a float
+  let num = parseFloat(input);
+
+  // Multiply by 1e9 (10^9) to shift the decimal 9 places to the right
+  num *= 1e9;
+
+  // Round to ensure no fractional part remains
+  const roundedNum = Math.round(num);
+
+  return new BN(roundedNum);
 }

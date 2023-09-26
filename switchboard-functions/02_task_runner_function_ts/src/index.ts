@@ -1,9 +1,9 @@
 import { Program } from "@coral-xyz/anchor";
 import idl from "./idl.json";
 import { FunctionRunner } from "@switchboard-xyz/solana.js/functions";
-import { Binance } from "./binance";
 import { BasicOracle } from "./types";
 import { TransactionInstruction } from "@solana/web3.js";
+import { TaskRunner } from "@switchboard-xyz/task-runner";
 
 async function main() {
   const runner = new FunctionRunner();
@@ -14,13 +14,9 @@ async function main() {
     runner.provider
   );
 
-  const binance = await Binance.fetch();
-  const refreshOraclesIxn: TransactionInstruction = await binance.toInstruction(
-    runner,
-    program
-  );
+  const taskRunner = await TaskRunner.load();
 
-  await runner.emit([refreshOraclesIxn]);
+  await runner.emit([]);
 }
 
 // run switchboard function

@@ -7,9 +7,10 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "build": "rimraf dist; esbuild --bundle ./src/index.ts --platform=node --target=node20 --outfile=dist/index.js --minify --sourcemap=inline",
+    "build": "rimraf dist; npm run cp:types && npm run build:types && esbuild --bundle ./src/index.ts --platform=node --target=node20 --outfile=dist/index.js --minify --sourcemap=inline",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "types": "cp ../../target/types/basic_oracle.ts ./src/types.ts && cp ../../target/idl/basic_oracle.json ./src/idl.json"
+    "build:types": "anchor-client-gen ../../target/idl/basic_oracle.json ./src/sdk",
+    "cp:types": "cp ../../target/types/basic_oracle.ts ./src/types.ts && cp ../../target/idl/basic_oracle.json ./src/idl.json"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.28.0",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.6.5",
+    "anchor-client-gen": "^0.28.1",
     "esbuild": "^0.19.3",
     "rimraf": "^5.0.1",
     "tsx": "^3.13.0",
