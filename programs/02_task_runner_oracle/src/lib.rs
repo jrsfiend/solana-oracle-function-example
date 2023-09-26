@@ -44,7 +44,7 @@ pub mod task_runner_oracle {
         Ok(())
     }
 
-    pub fn add_oracle(ctx: Context<AddOracle>, params: AddOracleParams) -> anchor_lang::Result<()> {
+    pub fn add_feed(ctx: Context<AddFeed>, params: AddFeedParams) -> anchor_lang::Result<()> {
         // Params validation
         if params.name.len() > 32 {
             return Err(error!(OracleError::ArrayOverflow));
@@ -89,7 +89,7 @@ pub mod task_runner_oracle {
         Ok(())
     }
 
-    pub fn remove_oracle(ctx: Context<RemoveOracle>, idx: u32) -> anchor_lang::Result<()> {
+    pub fn remove_feed(ctx: Context<RemoveFeed>, idx: u32) -> anchor_lang::Result<()> {
         let oracle = &mut ctx.accounts.oracle.load_mut()?;
 
         if oracle.feeds[idx as usize].ipfs_hash == [0u8; 32] {
@@ -154,7 +154,7 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct AddOracleParams {
+pub struct AddFeedParams {
     pub idx: u32,
     pub name: Vec<u8>,
     pub ipfs_hash: Vec<u8>,
@@ -162,8 +162,8 @@ pub struct AddOracleParams {
 }
 
 #[derive(Accounts)]
-#[instruction(params: AddOracleParams)] // rpc parameters hint
-pub struct AddOracle<'info> {
+#[instruction(params: AddFeedParams)] // rpc parameters hint
+pub struct AddFeed<'info> {
     #[account(
         seeds = [PROGRAM_SEED],
         bump = program.load()?.bump,
@@ -180,7 +180,7 @@ pub struct AddOracle<'info> {
 
 #[derive(Accounts)]
 #[instruction(params: u32)] // rpc parameters hint
-pub struct RemoveOracle<'info> {
+pub struct RemoveFeed<'info> {
     #[account(
         seeds = [PROGRAM_SEED],
         bump = program.load()?.bump,
