@@ -18,8 +18,8 @@ dependencies:
     specifier: ^2.3.6
     version: 2.3.6
   '@switchboard-xyz/solana.js':
-    specifier: 2.8.0-beta.0
-    version: 2.8.0-beta.0
+    specifier: 2.8.0-beta.4
+    version: 2.8.0-beta.4
 
 devDependencies:
   '@types/bn.js':
@@ -500,8 +500,8 @@ packages:
       yaml: 2.3.2
     dev: false
 
-  /@switchboard-xyz/solana.js@2.8.0-beta.0:
-    resolution: {integrity: sha512-21hr1saqkkUV8NYVLcSfvH0D8I488VM0CQgnF8qpNnQWYsDTkfiEuItxT/iOi6oh9NfL/8k3X7TuNyH7rC9CkQ==}
+  /@switchboard-xyz/solana.js@2.8.0-beta.4:
+    resolution: {integrity: sha512-JJCe6Cl63/6tJ0LKmGZBnHmTa70JFQkmB52Mt18i6Z+yL8RpGPMOqRgbZ54hJ90BrMg5YvPbegIMpvjrqh8yCg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       '@coral-xyz/anchor': 0.28.0
@@ -512,6 +512,8 @@ packages:
       cron-validator: 1.3.1
       dotenv: 16.3.1
       lodash: 4.17.21
+      zod: 3.22.2
+      zod-error: 1.5.0
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -1830,3 +1832,13 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod-error@1.5.0:
+    resolution: {integrity: sha512-zzopKZ/skI9iXpqCEPj+iLCKl9b88E43ehcU+sbRoHuwGd9F1IDVGQ70TyO6kmfiRL1g4IXkjsXK+g1gLYl4WQ==}
+    dependencies:
+      zod: 3.22.2
+    dev: false
+
+  /zod@3.22.2:
+    resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
+    dev: false

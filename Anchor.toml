@@ -11,12 +11,12 @@ basic_oracle = "3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr"
 task_runner_oracle = "dvBPs44kNgw6k2or4qpoAoPgct5nbEwqrD5VDRGfifd"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "pnpm exec ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
-init = "tsx ./scripts/initialize.ts"
+init-basic-oracle = "tsx ./scripts/init-basic-oracle.ts"
 watch = "tsx ./scripts/watch.ts"
 
 [test.validator]

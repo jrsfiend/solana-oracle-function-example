@@ -1,14 +1,8 @@
 import { BN, Program } from "@coral-xyz/anchor";
-import {
-  OracleDataBorsh,
-  OracleDataWithTradingSymbol,
-  TradingSymbol,
-  TradingSymbolJSON,
-} from "./sdk/types";
+import { OracleDataBorsh, TradingSymbol, TradingSymbolJSON } from "./sdk/types";
 import { BasicOracle } from "./types";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
-import { fromJSON } from "./sdk/types/TradingSymbol";
-import { FunctionRunner } from "@switchboard-xyz/solana.js/functions";
+import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
 
 interface Ticker {
   symbol: string; // BTCUSDT
@@ -108,13 +102,15 @@ export class Binance {
   public static async fetch(): Promise<Binance> {
     const symbols = ["BTCUSDT", "USDCUSDT", "ETHUSDT", "SOLUSDT", "DOGEUSDT"];
 
-    const tickers1HrResponse = await fetch(
-      `https://api.binance.com/api/v3/ticker?symbols=[${symbols
-        .map((s) => `\"${s}\"`)
-        .join(",")}]&windowSize=1h`
-    );
+    const oneHrUrl = `https://api.binance.com/api/v3/ticker?symbols=[${symbols
+      .map((s) => `\"${s}\"`)
+      .join(",")}]&windowSize=1h`;
+    console.log(`Fetching 1hr data from ${oneHrUrl}`);
+    const tickers1HrResponse = await fetch(oneHrUrl);
     if (!tickers1HrResponse.ok) {
-      throw new Error(`Failed to fetch tickers for the 1hr interval`);
+      throw new Error(
+        `Failed to fetch tickers for the 1hr interval, Status=${tickers1HrResponse.status}`
+      );
     }
     const tickers1Hr: Ticker[] = await tickers1HrResponse.json();
 
@@ -122,13 +118,15 @@ export class Binance {
       throw new Error(`Mismatch in number of tickers`);
     }
 
-    const tickers24HrResponse = await fetch(
-      `https://api.binance.com/api/v3/ticker?symbols=[${symbols
-        .map((s) => `\"${s}\"`)
-        .join(",")}]&windowSize=1h`
-    );
+    const twentyFourHourUrl = `https://api.binance.com/api/v3/ticker?symbols=[${symbols
+      .map((s) => `\"${s}\"`)
+      .join(",")}]&windowSize=1h`;
+    console.log(`Fetching 24hr data from ${twentyFourHourUrl}`);
+    const tickers24HrResponse = await fetch(twentyFourHourUrl);
     if (!tickers24HrResponse.ok) {
-      throw new Error(`Failed to fetch tickers for the 1d interval`);
+      throw new Error(
+        `Failed to fetch tickers for the 1d interval, Status=${tickers24HrResponse.status}`
+      );
     }
     const tickers1d: Ticker[] = await tickers24HrResponse.json();
     if (tickers1d.length !== symbols.length) {

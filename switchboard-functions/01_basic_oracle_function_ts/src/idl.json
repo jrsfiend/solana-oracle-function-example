@@ -363,8 +363,5 @@
       "name": "FunctionValidationFailed",
       "msg": "FunctionAccount was not validated successfully"
     }
-  ],
-  "metadata": {
-    "address": "3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr"
-  }
+  ]
 }

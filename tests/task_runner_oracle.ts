@@ -61,7 +61,7 @@ describe("task_runner_oracle", () => {
     // Kind of annoying, the function is a PDA derived from the payer and recentSlot
     // So we need to wait for the recentSlot to tick over before we can create the function.
     // We could manually provide the incremented recent slot, but this is easier.
-    await sleep(3000);
+    await sleep(5000);
 
     [functionAccount] =
       await switchboard.attestationQueue.account.createFunction(
@@ -96,6 +96,7 @@ describe("task_runner_oracle", () => {
       })
       .signers([oracleKeypair])
       .preInstructions([
+        // oracle account is a keypair account so theres no PDA size restrictions
         SystemProgram.createAccount({
           fromPubkey: payer,
           newAccountPubkey: oracleKeypair.publicKey,

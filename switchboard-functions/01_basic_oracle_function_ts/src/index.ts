@@ -1,17 +1,17 @@
 import { Program } from "@coral-xyz/anchor";
 import idl from "./idl.json";
-import { FunctionRunner } from "@switchboard-xyz/solana.js/functions";
+import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
 import { Binance } from "./binance";
 import { BasicOracle } from "./types";
 import { TransactionInstruction } from "@solana/web3.js";
 
 async function main() {
-  const runner = new FunctionRunner();
+  const runner = await FunctionRunner.create();
 
   const program: Program<BasicOracle> = new Program(
     JSON.parse(JSON.stringify(idl)),
     "3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr",
-    runner.provider
+    runner.program.provider
   );
 
   const binance = await Binance.fetch();
@@ -24,4 +24,7 @@ async function main() {
 }
 
 // run switchboard function
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(-1);
+});

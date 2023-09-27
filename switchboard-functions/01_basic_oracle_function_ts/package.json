@@ -7,15 +7,16 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "build": "rimraf dist; npm run cp:types && npm run build:types && esbuild --bundle ./src/index.ts --platform=node --target=node20 --outfile=dist/index.js --minify --sourcemap=inline",
+    "build": "rimraf dist; esbuild --bundle ./src/index.ts --platform=node --target=node20 --outfile=dist/index.js --minify --sourcemap=inline",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:types": "anchor-client-gen ../../target/idl/basic_oracle.json ./src/sdk",
-    "cp:types": "cp ../../target/types/basic_oracle.ts ./src/types.ts && cp ../../target/idl/basic_oracle.json ./src/idl.json"
+    "cp:types": "cp ../../target/types/basic_oracle.ts ./src/types.ts && cp ../../target/idl/basic_oracle.json ./src/idl.json",
+    "gen:types": "anchor-client-gen ../../target/idl/basic_oracle.json ./src/sdk",
+    "types": "npm run cp:types && npm run gen:types"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.28.0",
     "@solana/web3.js": "^1.78.5",
-    "@switchboard-xyz/solana.js": "^2.8.0-beta.2"
+    "@switchboard-xyz/solana.js": "^3.0.0-beta.1"
   },
   "devDependencies": {
     "@types/node": "^20.6.5",

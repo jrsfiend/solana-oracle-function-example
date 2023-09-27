@@ -22,13 +22,13 @@ anchor_build :; anchor build
 
 build: anchor_build docker_build measurement
 
-docker_build: check_docker_env
+build-basic-function: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
 		-f ./switchboard-functions/01_basic_oracle_function/Dockerfile \
 		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest \
 		./
 
-docker_publish: check_docker_env
+publish-basic-function: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
 		-f ./switchboard-functions/01_basic_oracle_function/Dockerfile \
 		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest \
@@ -37,7 +37,7 @@ docker_publish: check_docker_env
 
 build: docker_build measurement
 
-publish: docker_publish measurement
+publish: build-basic-function measurement
 
 measurement: check_docker_env
 	docker pull --platform=linux/amd64 ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest
@@ -53,4 +53,10 @@ docker_build_01_ts: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
 		-f ./switchboard-functions/01_basic_oracle_function_ts/Dockerfile \
 		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:typescript \
+		./switchboard-functions/01_basic_oracle_function_ts
+docker_publish_01_ts: check_docker_env
+	docker buildx build --pull --platform linux/amd64 \
+		-f ./switchboard-functions/01_basic_oracle_function_ts/Dockerfile \
+		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:typescript \
+		--push \
 		./switchboard-functions/01_basic_oracle_function_ts
