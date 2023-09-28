@@ -1,7 +1,6 @@
-import { Program } from "@coral-xyz/anchor";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { SwitchboardProgram } from "@switchboard-xyz/solana.js";
-import { FunctionRunner } from "@switchboard-xyz/solana.js/functions";
+import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
 import {
   OracleJob,
   TaskRunner,
@@ -15,7 +14,7 @@ const myOracleJob: OracleJob = serializeOracleJob({
 });
 
 async function main() {
-  const runner = new FunctionRunner();
+  const runner = await FunctionRunner.create();
 
   // const program: Program<BasicOracle> = new Program(
   //   JSON.parse(JSON.stringify(idl)),
@@ -32,7 +31,7 @@ async function main() {
       : new Connection(clusterApiUrl("mainnet-beta"));
 
   const taskRunnerClients = new TaskRunnerClients(
-    switchboardProgram,
+    runner.program,
     mainnetConnection,
     undefined
   );

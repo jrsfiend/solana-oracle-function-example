@@ -16,10 +16,15 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.28.0",
     "@solana/web3.js": "^1.78.5",
-    "@switchboard-xyz/solana.js": "^3.0.0-beta.1"
+    "@switchboard-xyz/common": "^2.3.7",
+    "@switchboard-xyz/solana.js": "^3.0.0-beta.8",
+    "big.js": "^6.2.1",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "@types/big.js": "^6.2.0",
     "@types/node": "^20.6.5",
+    "@types/node-fetch": "^2.6.6",
     "anchor-client-gen": "^0.28.1",
     "esbuild": "^0.19.3",
     "rimraf": "^5.0.1",

@@ -4,6 +4,7 @@ import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
 import { Binance } from "./binance";
 import { BasicOracle } from "./types";
 import { TransactionInstruction } from "@solana/web3.js";
+import { FunctionAccount } from "@switchboard-xyz/solana.js";
 
 async function main() {
   const runner = await FunctionRunner.create();

@@ -3,6 +3,8 @@ import { OracleDataBorsh, TradingSymbol, TradingSymbolJSON } from "./sdk/types";
 import { BasicOracle } from "./types";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
+import fetch from "node-fetch";
+import { Big, BigUtils } from "@switchboard-xyz/common";
 
 interface Ticker {
   symbol: string; // BTCUSDT
@@ -187,15 +189,17 @@ export class Binance {
       .instruction();
   }
 }
+
+/**
+ * Formats the input string to nine decimal precision and returns a BN object.
+ * @param input - The input string to be formatted.
+ * @returns A BN object with the formatted input string.
+ */
 function formatToNineDecimalPrecision(input: string): BN {
-  // Parse the input string as a float
-  let num = parseFloat(input);
+  const big = new Big(input);
+  const scale = BigUtils.safePow(new Big(10), 9);
 
-  // Multiply by 1e9 (10^9) to shift the decimal 9 places to the right
-  num *= 1e9;
-
-  // Round to ensure no fractional part remains
-  const roundedNum = Math.round(num);
-
-  return new BN(roundedNum);
+  const fixed = BigUtils.safeMul(big, scale);
+  const trimmed = fixed.round(0);
+  return new BN(trimmed.toString());
 }
