@@ -6,7 +6,7 @@
 // - initialize:        Initializes the program and creates the accounts.
 // - set_function:      Sets the Switchboard Function for our program. This is the only function
 //                      allowed to push data to our program.
-// - refresh_oracle:    This is the instruction our Switchboard Function will emit to update
+// - update_price:      This is the instruction our Switchboard Function will emit to update
 //                      our oracle prices.
 // - trigger_function:  Our Switchboard Function will be configured to push data on a pre-defined
 //                      schedule. This instruction will allow us to manually request a new price
@@ -14,14 +14,19 @@
 
 pub use switchboard_solana::prelude::*;
 
-pub mod models;
-pub use models::*;
-
-declare_id!("3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr");
+declare_id!("DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb");
 
 pub const PROGRAM_SEED: &[u8] = b"BASICORACLE";
 
 pub const ORACLE_SEED: &[u8] = b"ORACLE_V1_SEED";
+
+#[account(zero_copy(unsafe))]
+pub struct MyProgramState {
+    pub bump: u8,
+    pub authority: Pubkey,
+    pub switchboard_function: Pubkey,
+    pub btc_price: f64,
+}
 
 #[program]
 pub mod basic_oracle {
@@ -37,19 +42,14 @@ pub mod basic_oracle {
             program.switchboard_function = switchboard_function.key();
         }
 
-        let oracle = &mut ctx.accounts.oracle.load_init()?;
-        oracle.bump = *ctx.bumps.get("oracle").unwrap();
-
         Ok(())
     }
 
-    pub fn refresh_oracles(
-        ctx: Context<RefreshOracles>,
-        params: RefreshOraclesParams,
-    ) -> anchor_lang::Result<()> {
-        let oracle = &mut ctx.accounts.oracle.load_mut()?;
+    pub fn update_price(ctx: Context<UpdatePrice>, price: f64) -> anchor_lang::Result<()> {
+        let program = &mut ctx.accounts.program.load_mut()?;
+
         msg!("saving oracle data");
-        oracle.save_rows(&params.rows)?;
+        program.btc_price = price;
 
         Ok(())
     }
@@ -83,15 +83,6 @@ pub struct Initialize<'info> {
     )]
     pub program: AccountLoader<'info, MyProgramState>,
 
-    #[account(
-        init,
-        space = 8 + std::mem::size_of::<MyOracleState>(),
-        payer = payer,
-        seeds = [ORACLE_SEED],
-        bump
-    )]
-    pub oracle: AccountLoader<'info, MyOracleState>,
-
     pub authority: Signer<'info>,
 
     pub switchboard_function: Option<AccountLoader<'info, FunctionAccountData>>,
@@ -103,8 +94,8 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(params: RefreshOraclesParams)] // rpc parameters hint
-pub struct RefreshOracles<'info> {
+#[instruction(params: f64)] // rpc parameters hint
+pub struct UpdatePrice<'info> {
     // We need this to validate that the Switchboard Function passed to our program
     // is the expected one.
     #[account(
@@ -113,13 +104,6 @@ pub struct RefreshOracles<'info> {
         has_one = switchboard_function
     )]
     pub program: AccountLoader<'info, MyProgramState>,
-
-    #[account(
-        mut,
-        seeds = [ORACLE_SEED],
-        bump = oracle.load()?.bump
-    )]
-    pub oracle: AccountLoader<'info, MyOracleState>,
 
     // We use this to verify the functions enclave state was verified successfully
     #[account(
@@ -130,11 +114,6 @@ pub struct RefreshOracles<'info> {
     )]
     pub switchboard_function: AccountLoader<'info, FunctionAccountData>,
     pub enclave_signer: Signer<'info>,
-}
-
-#[derive(Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct RefreshOraclesParams {
-    pub rows: Vec<OracleDataWithTradingSymbol>,
 }
 
 #[derive(Accounts)]
