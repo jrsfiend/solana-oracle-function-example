@@ -4273,9 +4273,9 @@ dependencies = [
 
 [[package]]
 name = "switchboard-solana"
-version = "0.28.27"
+version = "0.28.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "625e34dba0d9bcf6b1f5db5ccf1c0aa8db8329ff89c4d51715bbe4514140127a"
+checksum = "bcae2502d5ec73285dd855486ff54d9f169fbee8c8ab355ac74a7f809782e275"
 dependencies = [
  "anchor-client",
  "anchor-lang",
@@ -4657,6 +4657,15 @@ dependencies = [
  "utf-8",
  "webpki",
  "webpki-roots 0.22.6",
+]
+
+[[package]]
+name = "twap-oracle"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "bytemuck",
+ "switchboard-solana",
 ]
 
 [[package]]
