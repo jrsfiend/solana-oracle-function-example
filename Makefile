@@ -40,7 +40,6 @@ build: docker_build measurement
 publish: build-basic-function measurement
 
 measurement: check_docker_env
-	docker pull --platform=linux/amd64 ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest
 	@docker run -d --platform=linux/amd64 -q --name=my-switchboard-function \
 		${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest > /dev/null
 	@docker cp my-switchboard-function:/measurement.txt measurement.txt
