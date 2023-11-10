@@ -26,7 +26,7 @@ export const unixTimestamp = () => Math.floor(Date.now() / 1000);
 
 // Made up MrEnclave to use for our tests
 export const MRENCLAVE = parseRawMrEnclave(
-  "0x44e8f2f806229322780fbddff3e46dd23896e3f00d630fbf026ce36314c0fee1",
+  "0xa038e3b41265889aaae32cbec4d678de13857a6d11bb7305cedff854f08c3cc8",
   true
 );
 

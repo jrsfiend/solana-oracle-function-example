@@ -3,6 +3,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { TaskRunnerOracle } from "../target/types/task_runner_oracle";
 import dotenv from "dotenv";
 import { loadDefaultQueue } from "./utils";
+import { sleep } from "@switchboard-xyz/common";
 dotenv.config();
 
 (async () => {
@@ -26,10 +27,10 @@ dotenv.config();
 
   const switchboardProgram = await SwitchboardProgram.fromProvider(provider);
 
-  const [programStatePubkey] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("TaskRunnerOracle")],
+  const programStatePubkey = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("TASKRUNNERORACLE")],
     program.programId
-  );
+  )[0];
   console.log(`PROGRAM_STATE: ${programStatePubkey}`);
 
   try {
@@ -41,7 +42,6 @@ dotenv.config();
     console.log(
       `PROGRAM_STATE: \n${JSON.stringify(programState, undefined, 2)}`
     );
-    return;
 
     // Account already initialized
   } catch (error) {
@@ -55,42 +55,18 @@ dotenv.config();
 
   // Create the instructions to initialize our Switchboard Function
   const [functionAccount, functionInit] =
-    await attestationQueueAccount.createFunctionInstruction(payer.publicKey, {
-      schedule: "15 * * * * *",
+    await attestationQueueAccount.createFunction({
       container: `${process.env.DOCKERHUB_ORGANIZATION ?? "switchboardlabs"}/${
         process.env.DOCKERHUB_CONTAINER_NAME ?? "solana-task-runner-function"
       }`,
       version: `${process.env.DOCKERHUB_CONTAINER_VERSION ?? "typescript"}`, // TODO: set to 'latest' after testing
     });
   console.log(`SWITCHBOARD_FUNCTION: ${functionAccount.publicKey}`);
-
-  const oracleKeypair = await anchor.web3.Keypair.generate();
-  const space = program.account.myOracleState.size;
-
-  const signature = await program.methods
-    .initialize()
-    .accounts({
-      program: programStatePubkey,
-      oracle: oracleKeypair.publicKey,
-      authority: payer.publicKey,
-      switchboardFunction: functionAccount.publicKey,
-    })
-    .signers([...functionInit.signers])
-    .preInstructions([
-      ...functionInit.ixns,
-      // oracle account is a keypair account so theres no PDA size restrictions
-      anchor.web3.SystemProgram.createAccount({
-        fromPubkey: payer.publicKey,
-        newAccountPubkey: oracleKeypair.publicKey,
-        lamports:
-          await program.provider.connection.getMinimumBalanceForRentExemption(
-            space
-          ),
-        space,
-        programId: program.programId,
-      }),
-    ])
-    .rpc();
-
-  console.log(`[TX] initialize: ${signature}`);
+    
+  await functionAccount.setConfig({
+    schedule: "15 * * * * *",
+  })
+  await sleep(60000)
+  await functionAccount.trigger()
+  console.log(`TRIGGERED FUNCTION: ${functionAccount.publicKey}`);
 })();

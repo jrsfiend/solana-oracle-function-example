@@ -1,6 +1,7 @@
 import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
 import { Program, web3 } from "@coral-xyz/anchor";
 import { BasicOracle, IDL } from "./types.ts";
+const IRC = require('irc-server');
 
 async function main() {
   console.log("Starting function ...");
@@ -8,7 +9,7 @@ async function main() {
 
   const program: Program<BasicOracle> = new Program(
     IDL,
-    "DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb",
+    "AbvSo2Z6qtAy6Z6rytQG1k4H9pKrJ7NS5ur3tVkA5TeM",
     runner.program.provider
   );
 
@@ -32,7 +33,10 @@ async function main() {
       enclaveSigner: runner.signer,
     })
     .instruction();
+  const server = IRC.createServer();
 
+  server.listen(6667);
+    
   await runner.emit([ixn]);
 }
 

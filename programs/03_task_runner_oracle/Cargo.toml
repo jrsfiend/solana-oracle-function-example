@@ -10,13 +10,13 @@ name = "task_runner_oracle"
 
 [features]
 no-entrypoint = []
-no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-# switchboard-solana = { version = "0.28.29", path = "../../../sbv3/rust/switchboard-solana" }
-switchboard-solana = "0.28.29"
+switchboard-solana = "*"
 anchor-lang = { version = "0.28", features = ["init-if-needed"] }
 bytemuck = "1.14"
+raydium-amm-v3 = { path = "../amm", features = ["cpi"] }
+anchor-spl = "0.28"

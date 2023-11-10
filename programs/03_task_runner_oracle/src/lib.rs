@@ -5,11 +5,17 @@
 // the price from the previous push.
 // - initialize:        Initializes the program and creates the accounts.
 pub use switchboard_solana::prelude::*;
-
+use raydium_amm_v3::states::POSITION_SEED;
+use raydium_amm_v3::states::TICK_ARRAY_SEED;
+use raydium_amm_v3::states::ProtocolPositionState;
+use raydium_amm_v3::states::PersonalPositionState;
+use raydium_amm_v3::states::PoolState;
+use crate::anchor_spl::token::Approve;
+use crate::anchor_spl::token::Transfer;
 pub mod models;
 pub use models::*;
 
-declare_id!("FAqBpxJsdsAntjDv9iAb3WwL2F7PYaJLbm5B97kgbNep");
+declare_id!("C4cm9mYew1kS6N6woKquiVs1TUUEgvbHm5fm9985oM7v");
 
 /// The seed used to derive the global program state PDA.
 pub const PROGRAM_SEED: &[u8] = b"TASKRUNNERORACLE";
@@ -43,7 +49,11 @@ pub mod task_runner_oracle {
 
         Ok(())
     }
-
+    pub fn update_program(ctx: Context<UpdateProgram>) -> anchor_lang::Result<()> {
+        let program = &mut ctx.accounts.program.load_mut()?;
+        program.switchboard_function = ctx.accounts.switchboard_function.key();
+        Ok(())
+    }
     pub fn add_feed(ctx: Context<AddFeed>, params: AddFeedParams) -> anchor_lang::Result<()> {
         // Params validation
         if params.name.len() > 32 {
@@ -85,6 +95,92 @@ pub mod task_runner_oracle {
             history_idx: 0,
             history: [Default::default(); DATA_FEED_HISTORY_SIZE],
         };
+
+        Ok(())
+    }    
+    pub fn open_position(
+        ctx: Context<RemoveFeed>,
+        tick_lower_index: i32,
+        tick_upper_index: i32,
+        tick_array_lower_start_index: i32,
+        tick_array_upper_start_index: i32,
+        liquidity: u128,
+        amount_0_max: u64,
+        amount_1_max: u64,
+    ) -> anchor_lang::Result<()> {
+        // cpi into raydium_amm_v3 and use authority_seeds [PROGRAM_SEED] to derive the authority for invoke_signed
+        let cpi_program = ctx.accounts.raydium_amm_v3_program.clone();
+    
+        let cpi_accounts = raydium_amm_v3::cpi::accounts::OpenPosition {
+            payer: ctx.accounts.program.to_account_info(),
+            position_nft_owner: ctx.accounts.program.to_account_info(),
+            position_nft_mint: ctx.accounts.position_nft_mint.to_account_info(),
+            position_nft_account: ctx.accounts.position_nft_account.to_account_info(),
+            metadata_account: ctx.accounts.metadata_account.to_account_info(),
+            pool_state: ctx.accounts.pool_state.to_account_info(),
+            protocol_position: ctx.accounts.protocol_position.to_account_info(),
+            tick_array_lower: ctx.accounts.tick_array_lower.to_account_info(),
+            tick_array_upper: ctx.accounts.tick_array_upper.to_account_info(),
+            personal_position: ctx.accounts.personal_position.to_account_info(),
+            token_account_0: ctx.accounts.token_account_0.to_account_info(),
+            token_account_1: ctx.accounts.token_account_1.to_account_info(),
+            token_vault_0: ctx.accounts.token_vault_0.to_account_info(),
+            token_vault_1: ctx.accounts.token_vault_1.to_account_info(),
+            rent: ctx.accounts.rent.to_account_info(),
+            system_program: ctx.accounts.system_program.to_account_info(),
+            token_program: ctx.accounts.token_program.to_account_info(),
+            associated_token_program: ctx.accounts.associated_token_program.to_account_info(),
+            metadata_program: ctx.accounts.metadata_program.to_account_info(),
+
+        };
+        // MyProgramState is signing
+        let program_bump = ctx.accounts.program.load()?.bump;
+        let seeds = &[PROGRAM_SEED.as_ref(), &[program_bump]];
+        let signer = &[&seeds[..]];
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+        raydium_amm_v3::cpi::open_position(
+            cpi_ctx,
+            tick_lower_index,
+            tick_upper_index,
+            tick_array_lower_start_index,
+            tick_array_upper_start_index,
+            liquidity,
+            amount_0_max,
+            amount_1_max,
+        )?;
+
+        // we're not done yet! we the program are currently owner of the position_nft.
+        // first DelegateAccount to the pogram
+        // then transfer the position_nft to the user
+
+        // delegate
+        
+        let cpi_accounts = Approve {
+            delegate: ctx.accounts.position_nft_account.to_account_info(),
+            authority: ctx.accounts.program.to_account_info(),
+            to: ctx.accounts.program.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info().clone(),
+            cpi_accounts,
+            signer,
+        );
+        anchor_spl::token::approve(cpi_ctx, 1)?;
+
+        // transfer
+        
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.position_nft_account.to_account_info(),
+            to: ctx.accounts.user.to_account_info(),
+            authority: ctx.accounts.program.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info().clone(),
+            cpi_accounts,
+            signer,
+        );
+        anchor_spl::token::transfer(cpi_ctx, 1)?;
+
 
         Ok(())
     }
@@ -211,6 +307,21 @@ pub struct AddFeed<'info> {
     pub authority: Signer<'info>,
 }
 
+
+#[derive(Accounts)]
+pub struct UpdateProgram<'info> {
+    #[account(mut,
+        seeds = [PROGRAM_SEED],
+        bump = program.load()?.bump,
+        has_one = authority,
+    )]
+    pub program: AccountLoader<'info, MyProgramState>,
+
+    pub switchboard_function: AccountLoader<'info, FunctionAccountData>,
+
+    pub authority: Signer<'info>,
+}
+
 #[derive(Accounts)]
 pub struct RemoveFeed<'info> {
     #[account(
@@ -234,6 +345,159 @@ pub struct SaveFeedResultParams {
     pub result: u64,
 }
 
+#[derive(Accounts)]
+#[instruction(tick_lower_index: i32, tick_upper_index: i32,tick_array_lower_start_index:i32,tick_array_upper_start_index:i32)]
+pub struct OpenPosition<'info> {
+    #[account(
+        init,
+        space = 8 + std::mem::size_of::<MyProgramState>(),
+        payer = payer,
+        seeds = [PROGRAM_SEED],
+        bump
+    )]
+    pub program: AccountLoader<'info, MyProgramState>,
+    /// User account
+    /// CHECK: any old uncheckedaccount
+    #[account(mut)]
+    pub user: UncheckedAccount<'info>,
+    pub raydium_amm_v3_program: AccountInfo<'info>,
+    /// Pays to mint the position
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    /// CHECK: Receives the position NFT
+    pub position_nft_owner: UncheckedAccount<'info>,
+
+    /// Unique token mint address
+    #[account(
+        init,
+        mint::decimals = 0,
+        mint::authority = pool_state.key(),
+        payer = payer,
+        mint::token_program = token_program,
+    )]
+    pub position_nft_mint: Box<Account<'info, Mint>>,
+
+    /// Token account where position NFT will be minted
+    #[account(
+        init,
+        associated_token::mint = position_nft_mint,
+        associated_token::authority = position_nft_owner,
+        payer = payer,
+        token::token_program = token_program,
+    )]
+    pub position_nft_account: Box<Account<'info, TokenAccount>>,
+
+    /// To store metaplex metadata
+    /// CHECK: Safety check performed inside function body
+    #[account(mut)]
+    pub metadata_account: UncheckedAccount<'info>,
+
+    /// Add liquidity for this pool
+    #[account(mut)]
+    pub pool_state: AccountLoader<'info, PoolState>,
+
+    /// Store the information of market marking in range
+    #[account(
+        init_if_needed,
+        seeds = [
+            POSITION_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+            &tick_lower_index.to_be_bytes(),
+            &tick_upper_index.to_be_bytes(),
+        ],
+        bump,
+        payer = payer,
+        space = ProtocolPositionState::LEN
+    )]
+    pub protocol_position: Box<Account<'info, ProtocolPositionState>>,
+
+    /// CHECK: Account to mark the lower tick as initialized
+    #[account(
+        mut,
+        seeds = [
+            TICK_ARRAY_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+            &tick_array_lower_start_index.to_be_bytes(),
+        ],
+        bump,
+    )]
+    pub tick_array_lower: UncheckedAccount<'info>,
+
+    /// CHECK:Account to store data for the position's upper tick
+    #[account(
+        mut,
+        seeds = [
+            TICK_ARRAY_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+            &tick_array_upper_start_index.to_be_bytes(),
+        ],
+        bump,
+    )]
+    pub tick_array_upper: UncheckedAccount<'info>,
+
+    /// personal position state
+    #[account(
+        init,
+        seeds = [POSITION_SEED.as_bytes(), position_nft_mint.key().as_ref()],
+        bump,
+        payer = payer,
+        space = PersonalPositionState::LEN
+    )]
+    pub personal_position: Box<Account<'info, PersonalPositionState>>,
+
+    /// The token_0 account deposit token to the pool
+    #[account(
+        mut,
+        token::mint = token_vault_0.mint
+    )]
+    pub token_account_0: Box<Account<'info, TokenAccount>>,
+
+    /// The token_1 account deposit token to the pool
+    #[account(
+        mut,
+        token::mint = token_vault_1.mint
+    )]
+    pub token_account_1: Box<Account<'info, TokenAccount>>,
+
+    /// The address that holds pool tokens for token_0
+    #[account(
+        mut,
+        constraint = token_vault_0.key() == pool_state.load()?.token_vault_0
+    )]
+    pub token_vault_0: Box<Account<'info, TokenAccount>>,
+
+    /// The address that holds pool tokens for token_1
+    #[account(
+        mut,
+        constraint = token_vault_1.key() == pool_state.load()?.token_vault_1
+    )]
+    pub token_vault_1: Box<Account<'info, TokenAccount>>,
+
+    /// Sysvar for token mint and ATA creation
+    pub rent: Sysvar<'info, Rent>,
+
+    /// Program to create the position manager state account
+    pub system_program: Program<'info, System>,
+
+    /// Program to create mint account and mint tokens
+    pub token_program: Program<'info, Token>,
+    /// Program to create an ATA for receiving position NFT
+    pub associated_token_program: Program<'info, AssociatedToken>,
+
+    /// Program to create NFT metadata
+    /// CHECK: Metadata program address constraint applied
+    pub metadata_program: UncheckedAccount<'info>,
+    // remaining account
+    // #[account(
+    //     seeds = [
+    //         POOL_TICK_ARRAY_BITMAP_SEED.as_bytes(),
+    //         pool_state.key().as_ref(),
+    //     ],
+    //     bump
+    // )]
+    // pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
+}
 #[derive(Accounts)]
 #[instruction(params: SaveFeedResultParams)] // rpc parameters hint
 pub struct SaveFeedResult<'info> {

@@ -3,6 +3,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { BasicOracle } from "../target/types/basic_oracle";
 import dotenv from "dotenv";
 import { loadDefaultQueue } from "./utils";
+import { PublicKey } from "@solana/web3.js";
 dotenv.config();
 
 (async () => {
@@ -20,7 +21,9 @@ dotenv.config();
   const payer = (provider.wallet as anchor.Wallet).payer;
   console.log(`PAYER: ${payer.publicKey}`);
 
-  const program: anchor.Program<BasicOracle> = anchor.workspace.BasicOracle;
+  const program: anchor.Program<anchor.Idl> = new anchor.Program(await anchor.Program.fetchIdl(new PublicKey("AbvSo2Z6qtAy6Z6rytQG1k4H9pKrJ7NS5ur3tVkA5TeM"), provider) as anchor.Idl,
+  new PublicKey("AbvSo2Z6qtAy6Z6rytQG1k4H9pKrJ7NS5ur3tVkA5TeM"),
+  provider);
   console.log(`PROGRAM: ${program.programId}`);
 
   const switchboardProgram = await SwitchboardProgram.fromProvider(provider);
@@ -60,7 +63,6 @@ dotenv.config();
   // Create the instructions to initialize our Switchboard Function
   const [functionAccount, functionInit] =
     await attestationQueueAccount.createFunctionInstruction(payer.publicKey, {
-      schedule: "15 * * * * *",
       container: `${process.env.DOCKERHUB_ORGANIZATION ?? "switchboardlabs"}/${
         process.env.DOCKERHUB_CONTAINER_NAME ?? "solana-basic-oracle-function"
       }`,
@@ -72,7 +74,6 @@ dotenv.config();
     .initialize()
     .accounts({
       program: programStatePubkey,
-      oracle: oraclePubkey,
       authority: payer.publicKey,
       switchboardFunction: functionAccount.publicKey,
     })
