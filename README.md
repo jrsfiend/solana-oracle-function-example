@@ -371,20 +371,29 @@ And there you have it! Give yourself a high-five for powering through those tech
 
 --todo: build, deploy anchor program && build, push docker image for function && create function && trigger function--
 
-anchor build && anchor deploy --provider.cluster devnet
+```anchor build && anchor deploy --provider.cluster devnet```
 
 check the programId! replace all instances of the srfx_usdc_oracle programId mentioned in root Anchor.toml with the new one.
 
-anchor build && anchor deploy --provider.cluster devnet
+```anchor build && anchor deploy --provider.cluster devnet```
 
-build and publish function: make build-basic-function && make publish-basic-function
+build and publish function: 
 
-find out your enclave hash: make measurement && cat measurement.txt
+```make build-basic-function && make publish-basic-function```
 
-create the function on Switchboard, your friendly local neighbourhood superpower factory on many chains: sb solana function create ALZNPjwkbhrH87cV7Mv8qFjdZzpfep58X3iAhoYzeksC --name assessment-magick --fundAmount 0.1 --container your own docker username/solana-basic-oracle-function --version latest -k ~/.config/solana/id.json --mrEnclave {response from above cat command} --cluster devnet
+find out your enclave hash: 
 
-trigger one-time: sb solana function send-request 2RYL1QuVyBLgwJQm5ARfAeZjic7TnFszrMc8ESWfrnn4 -k ~/.config/solana/id.json
+```make measurement && cat measurement.txt```
 
-trigger as a scheduled routine: sb solana routine create 2RYL1QuVyBLgwJQm5ARfAeZjic7TnFszrMc8ESWfrnn4 --name magick-minutely --schedule "*/1 * * * *" -k ~/.config/solana/id.json --cluster devnet
+create the function on Switchboard, your friendly local neighbourhood superpower factory on many chains: 
 
+```sb solana function create ALZNPjwkbhrH87cV7Mv8qFjdZzpfep58X3iAhoYzeksC --name assessment-magick --fundAmount 0.1 --container your own docker username/solana-basic-oracle-function --version latest -k ~/.config/solana/id.json --mrEnclave {response from above cat command} --cluster devnet```
+
+trigger one-time: 
+
+```sb solana function send-request 2RYL1QuVyBLgwJQm5ARfAeZjic7TnFszrMc8ESWfrnn4 -k ~/.config/solana/id.json```
+
+trigger as a scheduled routine: 
+
+```sb solana routine create 2RYL1QuVyBLgwJQm5ARfAeZjic7TnFszrMc8ESWfrnn4 --name magick-minutely --schedule "*/1 * * * *" -k ~/.config/solana/id.json --cluster devnet```
 
