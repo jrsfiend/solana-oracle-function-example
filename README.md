@@ -34,7 +34,7 @@ it's not aptly named, as we're pulling data from onchain balancer pools. Renamne
 
 lib.rs
 
-Let's break down this programming difference (also known as a diff or patch) and explain how to apply the changes to the file `lib.rs`. These changes involve identifiers and program seeds in a Rust programming project.
+Let's apply the changes to the file `lib.rs`. These changes involve identifiers and program seeds in a Rust programming project.
 
 **Step-by-Step Instructions for Beginners:**
 
