@@ -6,8 +6,8 @@ use rust_decimal::Decimal;
 use ethers::{
     providers::{Http, Provider},
  };
- pub mod binance;
- pub use binance::*;
+ pub mod balancer;
+ pub use balancer::*;
 use ethers::prelude::Wallet;
 use std::process::ExitCode;
 use std::process::Termination;
