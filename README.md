@@ -32,23 +32,6 @@ it's not aptly named, as we're pulling data from onchain balancer pools. Renamne
 10. Update the `Balancer` struct to contain only one `IndexData` field named `pub srfx_usdc`.
 11. Adjust the `Balancer` implementation\'s `fetch` method to set up the new field based on the symbol `"SRFXUSD"` and the provided `price`.
 
-**ELI5:**
-
-Hey there! We\'re going to make some changes to a code file for a Rust project, so it better fits the data we want to get from a cryptocurrency\'s pricing info. Don\'t worry; I\'ll guide you through it.
-
-1. First, find and open the project folder with your text editor.
-2. Look for a file named `balancer.rs` inside the `src` folder.
-3. At the start of the file, we\'ve got some lines that add tools we\'ll need. We\'re going to swap `basic_oracle` with `srfx_usdc_oracle` so we can use the latest tools.
-4. Next, there\'s a part where we describe the kind of data we want. We now only need the symbol (like "SRFXUSD") and the price. So we\'re going to remove all the extra details we don\'t need anymore.
-5. Then, we\'ll make sure when we use this data later on, we only focus on the price.
-6. After that, for our `Balancer` data collector, we only need to track the "SRFXUSD" pricing data. We\'ll set that up using a new field.
-7. In the `fetch` method, we need to make sure it knows about our new "SRFXUSD" data and what price we\'re looking at.
-8. Lastly, there\'s a bunch of other technical stuff to send our data out correctly, but most importantly, we\'re making sure all the places that used to look for lots of coins are now only focusing on our "SRFXUSD" price.
-
-By following these steps, you\'ll have everything set up for the "SRFXUSD" price, and you\'ll remove all the extra fluff we don\'t need. It\'s like cleaning out a closet and leaving only what you wear daily!
-
-Remember, when working with code, saving changes and testing often can help you catch any little mistakes. Now, go have fun coding!
-
 lib.rs
 
 Let's break down this programming difference (also known as a diff or patch) and explain how to apply the changes to the file `lib.rs`. These changes involve identifiers and program seeds in a Rust programming project.
@@ -64,21 +47,6 @@ Let's break down this programming difference (also known as a diff or patch) and
    - New Seed: `SRFXUSDCORACLE`
 
 
-**Step-by-Step Instructions in ELI5:**
-
-1. **Find the Name Tags:**
-   - Old Name Tag: It's a long combo of letters and numbers that starts with `3NKU...`
-   - New Name Tag: This one's different but also long, and it begins with `5Xf8...`
-
-2. **Change the Secret Code (Program Seed):**
-   - Old Secret Code: It looks like this: `BASICORACLE`
-   - New Secret Code: Now, it's different and says `SRFXUSDCORACLE`
-
-
-And that's it!
-
-Remember, these instructions are more like a guide—for someone just starting out, it might be helpful to have a buddy who knows coding to help out. It's like having a friend guide you through a complicated recipe.
-
 Now let's talk about changes to `models.rs`.
 
 **Step-by-Step Instructions for Beginners:**
@@ -88,18 +56,6 @@ Now let's talk about changes to `models.rs`.
 
 2. **Update `MyOracleState` To Reflect New Data:**
    - Change multiple oracle data tracking like `btc, usdc, eth, sol, doge` to just `srfx_usdc`.
-
-**Step-by-Step Instructions ELI5:**
-
-1. **Streamline `OracleData`:**
-   - You'll remove extra details from both the `OracleData` and its buddy `OracleDataBorsh`. No more one-hour and 24-hour stats; just focus on the main price.
-
-2. **Refocus `MyOracleState`:**
-   - Instead of keeping track of a bunch of different scores (like in a multi-sport event), you're only checking one now: `srfx_usdc`.
-
-Carrying out these changes essentially streamlines the information your program will handle and focuses on a specific oracle data set, `srfx_usdc`, which tracks specific currency exchange data.
-
-Suppose this was a bit too technical; feel free to ask for more details or clarification. And if you're diving into this kind of programming project for the first time, it's super exciting, so don't hesitate to experiment with these changes—but maybe not directly in the main project until you feel more confident. Happy coding!
 
 main.rs
 
@@ -297,8 +253,6 @@ Summmon the Balancer file to first save and then build the ixns for this perform
 
 Great job! You’ve just updated a computer program.
 
-**ELI5 Version: There is none for the above section. Woe!**
-
 We've got some more changes to make in our project, and I'm here to walk you through them, step by step. Cool? Cool.
 
 **Part 1: Update `.env` File**
@@ -373,26 +327,6 @@ For `.rs` files in `switchboard-functions/02_srfxusdc_oracle_function_rust/src`,
 **Part 8: Scripts and Tests**
 
 1. Update script and test files like `init-basic-oracle.ts` and `basic_oracle.ts` in a similar manner, focusing on replacing `basic_oracle` with `srfxusdc_oracle` where applicable.
-
-**ELI5 Version:**
-
-Want to make some cool changes to our code? Sweet! Grab your keyboard and join me as we update some of our project files together.
-
-Grab that `.env` file and swap out the old 'trusted organization name with the new one that looks a lot like your own. Next up, flip open that `Anchor.toml` and scribble a new note for `srfxusdc_oracle`.
-
-Ready for a little challenge? Fetch your `Makefile` and switch out old file paths for new ones in a snap! Also, sign your name where you see `DOCKERHUB_ORGANIZATION`.
-
-Now, dive into the `pnpm-lock.yaml` and give our friend `@switchboard-xyz/solana.js` a shiny new version sticker.
-
-Got a hankering for some `Cargo.toml` action? Bust it open and give some versions a nudge upward, like pushing `switchboard-utils` to stand tall at `0.9.0`.
-
-How about we tinker with some `.rs` files now? Just follow the breadcrumb trail of version updates and dependency tweaks.
-
-Don't forget about that `Dockerfile`! X marks the spot: change out an old path for a brand spankin' new one.
-
-Almost there! Open up those scripts and tests. It's like we're doing a word search, finding `basic_oracle` and swapping it with `srfxusdc_oracle`.
-
-And there you have it! Give yourself a high-five for powering through those technical changes! 🙌
 
 --todo: build, deploy anchor program && build, push docker image for function && create function && trigger function--
 
