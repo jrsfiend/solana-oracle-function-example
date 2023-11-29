@@ -320,7 +320,7 @@ For `.rs` files in `switchboard-functions/02_srfxusdc_oracle_function_rust/src`,
 
 **Part 8: Scripts and Tests**
 
-1. Update script and test files like `init-basic-oracle.ts` and `basic_oracle.ts` in a similar manner, focusing on replacing `basic_oracle` with `srfxusdc_oracle` where applicable.
+1. Update script and test files like `init-basic-oracle.ts` and `basic_oracle.ts` in a similar manner, focusing on replacing `basic_oracle` with `srfx_usdc_oracle` where applicable.
 
 --todo: build, deploy anchor program && build, push docker image for function && create function && trigger function--
 
