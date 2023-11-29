@@ -334,7 +334,32 @@ This one's a bit trickier, so follow closely!
 **Part 5: `Cargo.toml` Changes**
 
 1. Find `Cargo.toml` inside `switchboard-functions/02_srfxusdc_oracle_function_rust`.
-2. We have a list here; update versions for some items, like `switchboard-utils` to `0.9.0`.
+2. upon updating, dependencies will look like this:
+
+```
+srfx-usdc-oracle = { path = "../../programs/02_srfx_usdc_oracle", features = [
+    "no-entrypoint",
+] }
+tokio = "^1"
+futures = "0.3"
+chrono = "0.4.28"
+serde = "^1"
+serde_json = "^1"
+switchboard-utils = "0.9.0"
+switchboard-solana = { version = "=0.29.71", features = ["macros"] }
+reqwest = "0.11.20"
+rust_decimal = { version = "1.30.0", features = ["maths"] }
+balancer_sdk = { version = "0.1.16-alpha" }
+web3 = "0.19.0"
+ethers = "*"
+primitive-types = "*"
+```
+
+3. Find `Cargo.tonl` within `programs/02_srfx_usdc_oracle`
+
+4. change the dependency `switchboard-solana` to `"0.28.29"`
+
+5. remove the dependency for `anchor-lang` as it's provided by the new switchboard!
 
 **Part 6: Updates for Rust Files**
 
