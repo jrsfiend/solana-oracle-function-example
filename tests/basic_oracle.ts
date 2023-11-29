@@ -1,13 +1,13 @@
 // eslint-disable-next-line node/no-unpublished-import
-import type { BasicOracle } from "../target/types/basic_oracle";
+import type { TwapOracle } from "../target/types/twap_oracle";
 
 import { MRENCLAVE, printLogs, setupTest, unixTimestamp } from "./utils";
 
 import type { Program } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
 import { sleep } from "@switchboard-xyz/common";
-import type { FunctionAccount, MrEnclave } from "@switchboard-xyz/solana.js";
-import { SwitchboardWallet } from "@switchboard-xyz/solana.js";
+import type { FunctionAccount } from "@switchboard-xyz/solana.js";
+import { SwitchboardWallet } from "@switchboard-xyz/solana.js"; 
 import {
   attestationTypes,
   type BootstrappedAttestationQueue,
@@ -21,14 +21,14 @@ describe("basic_oracle", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.BasicOracle as Program<BasicOracle>;
+  const program = anchor.workspace.TwapOracle as Program<TwapOracle>;
 
   console.log(`ProgramID: ${program.programId}`);
 
   const payer = (program.provider as anchor.AnchorProvider).publicKey;
 
   const programStatePubkey = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("BASICORACLE")],
+    [Buffer.from("TWAPORACLE")],
     program.programId
   )[0];
   console.log(`programStatePubkey: ${programStatePubkey}`);
@@ -47,7 +47,7 @@ describe("basic_oracle", () => {
       switchboard.program,
       switchboard.attestationQueue.publicKey,
       payer,
-      "BasicOracleFunctionWallet",
+      "TwapOracleFunctionWallet",
       16
     );
     console.log(`wallet: ${wallet.publicKey}`);

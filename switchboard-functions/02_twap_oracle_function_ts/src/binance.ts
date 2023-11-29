@@ -176,7 +176,7 @@ export class Binance {
       })
       .accounts({
         program: PublicKey.findProgramAddressSync(
-          [Buffer.from("BASICORACLE")],
+          [Buffer.from("TWAPORACLE")],
           program.programId
         )[0],
         oracle: PublicKey.findProgramAddressSync(

@@ -12,7 +12,7 @@ async function main() {
 
   const program: Program<TwapOracle> = new Program(
     JSON.parse(JSON.stringify(idl)),
-    "3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr",
+    "ACJmCXG9oN9q4TyAzEsTAkSaWMRn2EZSw1bFDeTaoKJa",
     runner.program.provider
   );
 

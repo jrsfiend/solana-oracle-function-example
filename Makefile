@@ -24,13 +24,13 @@ build: anchor_build docker_build measurement
 
 build-basic-function: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
-		-f ./switchboard-functions/01_basic_oracle_function/Dockerfile \
+		-f ./switchboard-functions/02_twap_oracle_function_rust/Dockerfile \
 		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest \
 		./
 
 publish-basic-function: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
-		-f ./switchboard-functions/01_basic_oracle_function/Dockerfile \
+		-f ./switchboard-functions/02_twap_oracle_function_rust/Dockerfile \
 		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest \
 		--push \
 		./
@@ -48,14 +48,14 @@ measurement: check_docker_env
 	@docker stop my-switchboard-function > /dev/null
 	@docker rm my-switchboard-function > /dev/null
 
-docker_build_01_ts: check_docker_env
+docker_build: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
-		-f ./switchboard-functions/01_basic_oracle_function_ts/Dockerfile \
-		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:typescript \
-		./switchboard-functions/01_basic_oracle_function_ts
-docker_publish_01_ts: check_docker_env
+		-f ./switchboard-functions/02_twap_oracle_function_rust/Dockerfile \
+		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest \
+		./switchboard-functions/02_twap_oracle_function_rust
+docker_publish: check_docker_env
 	docker buildx build --pull --platform linux/amd64 \
-		-f ./switchboard-functions/01_basic_oracle_function_ts/Dockerfile \
-		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:typescript \
+		-f ./switchboard-functions/02_twap_oracle_function_rust/Dockerfile \
+		-t ${DOCKERHUB_ORGANIZATION}/solana-basic-oracle-function:latest \
 		--push \
-		./switchboard-functions/01_basic_oracle_function_ts
+		./switchboard-functions/02_twap_oracle_function_rust
