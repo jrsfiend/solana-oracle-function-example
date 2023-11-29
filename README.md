@@ -342,11 +342,79 @@ create the function on Switchboard, your friendly local neighbourhood superpower
 
 ```sb solana function create ALZNPjwkbhrH87cV7Mv8qFjdZzpfep58X3iAhoYzeksC --name assessment-magick --fundAmount 0.1 --container your own docker username/solana-basic-oracle-function --version latest -k ~/.config/solana/id.json --mrEnclave {response from above cat command} --cluster devnet```
 
+Note your Function Id.
+
+update scripts/init-basic-oracle.ts
+
+replace each instance of Twap with SrfxUsdc
+replace each instance of twap with srfxusdc
+remove the bits that say:
+
+```
+
+
+  // Create the instructions to initialize our Switchboard Function
+  const [functionAccount, functionInit] =
+    await attestationQueueAccount.createFunctionInstruction(payer.publicKey, {
+      schedule: "15 * * * * *",
+      container: `${process.env.DOCKERHUB_ORGANIZATION ?? "switchboardlabs"}/${
+        process.env.DOCKERHUB_CONTAINER_NAME ?? "solana-basic-oracle-function"
+      }`,
+      version: `${process.env.DOCKERHUB_CONTAINER_VERSION ?? "typescript"}`, // TODO: set to 'latest' after testing
+    });
+  console.log(`SWITCHBOARD_FUNCTION: ${functionAccount.publicKey}`);
+
+```
+
+replace 
+```
+const signature = await program.methods
+    .initialize()
+    .accounts({
+      program: programStatePubkey,
+      oracle: oraclePubkey,
+      authority: payer.publicKey,
+      switchboardFunction: functionAccount.publicKey,
+    })
+    .signers([...functionInit.signers])
+    .preInstructions([...functionInit.ixns])
+    .rpc();
+```
+with 
+```
+const signature = await program.methods
+    .initialize()
+    .accounts({
+      program: programStatePubkey,
+      oracle: oraclePubkey,
+      authority: payer.publicKey,
+      switchboardFunction: new PublicKey("Your FunctionID")
+    })
+    .rpc();
+```
+
+as we already have a cool function and don't need to generate a new one. Add 
+
+```
+import { PublicKey } from '@solana/web3.js';
+```
+to the top of the file.
+
+Lastly, run
+```
+export ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
+export ANCHOR_WALLET=/home/jd/.config/solana/id.json (replace with your own directory and filepath)
+ts-node scripts/init-basic-oracle.ts
+```
+this will initialize your PDA on your onchain program, which stores the state of your current SRFX price. Nice!
+
+--
+
 trigger one-time: 
 
-```sb solana function send-request 2RYL1QuVyBLgwJQm5ARfAeZjic7TnFszrMc8ESWfrnn4 -k ~/.config/solana/id.json```
+```sb solana function send-request FunctionId -k ~/.config/solana/id.json```
 
 trigger as a scheduled routine: 
 
-```sb solana routine create 2RYL1QuVyBLgwJQm5ARfAeZjic7TnFszrMc8ESWfrnn4 --name magick-minutely --schedule "*/1 * * * *" -k ~/.config/solana/id.json --cluster devnet```
+```sb solana routine create FunctionId --name magick-minutely --schedule "*/1 * * * *" -k ~/.config/solana/id.json --cluster devnet```
 
