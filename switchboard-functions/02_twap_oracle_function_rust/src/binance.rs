@@ -4,7 +4,7 @@ use crate::*;
 
 use switchboard_solana::get_ixn_discriminator;
 
-use twap_oracle::{OracleDataBorsh, TradingSymbol};
+use srfx_usdc_oracle::{OracleDataBorsh, TradingSymbol};
 use serde::Deserialize;
 
 #[allow(non_snake_case)]
@@ -80,13 +80,13 @@ impl Binance {
         let params = RefreshOraclesParams { rows };
 
         let (program_state_pubkey, _state_bump) =
-            Pubkey::find_program_address(&[b"TWAPORACLE"], &PROGRAM_ID);
+            Pubkey::find_program_address(&[b"SRFXUSDCORACLE"], &PROGRAM_ID);
 
         let (oracle_pubkey, _oracle_bump) =
             Pubkey::find_program_address(&[b"ORACLE_V1_SEED"], &PROGRAM_ID);
 
         let ixn = Instruction {
-            program_id: twap_oracle::ID,
+            program_id: srfx_usdc_oracle::ID,
             accounts: vec![
                 AccountMeta::new_readonly(program_state_pubkey, false),
                 AccountMeta::new(oracle_pubkey, false),

@@ -2,7 +2,7 @@ import { Program } from "@coral-xyz/anchor";
 import idl from "./idl.json";
 import { FunctionRunner } from "@switchboard-xyz/solana.js/runner";
 import { Binance } from "./binance";
-import { TwapOracle } from "./types";
+import { SrfxUsdcOracle } from "./types";
 import { TransactionInstruction } from "@solana/web3.js";
 
 async function main() {
@@ -10,7 +10,7 @@ async function main() {
   const runner = await FunctionRunner.create();
   console.log("[DEBUG] Loaded Runner:", new Date().toISOString());
 
-  const program: Program<TwapOracle> = new Program(
+  const program: Program<SrfxUsdcOracle> = new Program(
     JSON.parse(JSON.stringify(idl)),
     "ACJmCXG9oN9q4TyAzEsTAkSaWMRn2EZSw1bFDeTaoKJa",
     runner.program.provider

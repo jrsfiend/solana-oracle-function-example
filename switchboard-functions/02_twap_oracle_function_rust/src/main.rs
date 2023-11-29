@@ -37,7 +37,7 @@ use std::cmp::Ordering;
 
 declare_id!("DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb");
 
-pub const PROGRAM_SEED: &[u8] = b"TWAPORACLE";
+pub const PROGRAM_SEED: &[u8] = b"SRFXUSDCORACLE";
 
 pub const ORACLE_SEED: &[u8] = b"ORACLE_V1_SEED";
 
@@ -158,7 +158,7 @@ fn get_percentage_of_total(part: U256, total: U256) -> f64 {
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-pub use twap_oracle::{
+pub use srfx_usdc_oracle::{
     self, OracleData, OracleDataWithTradingSymbol, RefreshOracles, RefreshOraclesParams,
     SwitchboardDecimal, TradingSymbol, ID as PROGRAM_ID,
 };

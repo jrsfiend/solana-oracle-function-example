@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-unpublished-import
-import type { TwapOracle } from "../target/types/twap_oracle";
+import type { SrfxUsdcOracle } from "../target/types/srfx_usdc_oracle";
 
 import { MRENCLAVE, printLogs, setupTest, unixTimestamp } from "./utils";
 
@@ -21,14 +21,14 @@ describe("basic_oracle", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.TwapOracle as Program<TwapOracle>;
+  const program = anchor.workspace.SrfxUsdcOracle as Program<SrfxUsdcOracle>;
 
   console.log(`ProgramID: ${program.programId}`);
 
   const payer = (program.provider as anchor.AnchorProvider).publicKey;
 
   const programStatePubkey = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("TWAPORACLE")],
+    [Buffer.from("SRFXUSDCORACLE")],
     program.programId
   )[0];
   console.log(`programStatePubkey: ${programStatePubkey}`);
@@ -47,7 +47,7 @@ describe("basic_oracle", () => {
       switchboard.program,
       switchboard.attestationQueue.publicKey,
       payer,
-      "TwapOracleFunctionWallet",
+      "SrfxUsdcOracleFunctionWallet",
       16
     );
     console.log(`wallet: ${wallet.publicKey}`);

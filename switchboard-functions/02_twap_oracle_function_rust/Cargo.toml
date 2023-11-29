@@ -10,7 +10,7 @@ name = "basic-oracle-function"
 path = "src/main.rs"
 
 [dependencies]
-twap-oracle = { path = "../../programs/02_twap_oracle", features = [
+srfx-usdc-oracle = { path = "../../programs/02_srfx_usdc_oracle", features = [
     "no-entrypoint",
 ] }
 tokio = "^1"

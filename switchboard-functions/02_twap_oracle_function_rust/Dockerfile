@@ -14,15 +14,15 @@ FROM switchboardlabs/sgx-function AS builder
 # First copy the anchor program so we can re-use the type definitions
 WORKDIR /home/root/basic-oracle-example
 COPY ./Cargo.lock ./Cargo.lock
-WORKDIR /home/root/basic-oracle-example/programs/02_twap_oracle
-COPY ./programs/02_twap_oracle/Cargo.toml ./
-COPY ./programs/02_twap_oracle/src/ ./src/
+WORKDIR /home/root/basic-oracle-example/programs/02_srfx_usdc_oracle
+COPY ./programs/02_srfx_usdc_oracle/Cargo.toml ./
+COPY ./programs/02_srfx_usdc_oracle/src/ ./src/
 
-WORKDIR /home/root/basic-oracle-example/switchboard-functions/02_twap_oracle_function_rust
-COPY ./switchboard-functions/02_twap_oracle_function_rust/Cargo.lock \
-     ./switchboard-functions/02_twap_oracle_function_rust/Cargo.toml \
+WORKDIR /home/root/basic-oracle-example/switchboard-functions/02_srfx_usdc_oracle_function_rust
+COPY ./switchboard-functions/02_srfx_usdc_oracle_function_rust/Cargo.lock \
+     ./switchboard-functions/02_srfx_usdc_oracle_function_rust/Cargo.toml \
      ./
-COPY ./switchboard-functions/02_twap_oracle_function_rust/src/ ./src/
+COPY ./switchboard-functions/02_srfx_usdc_oracle_function_rust/src/ ./src/
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry,id=${TARGETPLATFORM} \
     --mount=type=cache,target=target,id=${TARGETPLATFORM} \

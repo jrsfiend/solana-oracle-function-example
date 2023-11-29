@@ -4261,6 +4261,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "srfx-usdc-oracle"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "bytemuck",
+ "switchboard-solana",
+]
+
+[[package]]
 name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4764,15 +4773,6 @@ dependencies = [
  "utf-8",
  "webpki",
  "webpki-roots 0.22.6",
-]
-
-[[package]]
-name = "twap-oracle"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "bytemuck",
- "switchboard-solana",
 ]
 
 [[package]]

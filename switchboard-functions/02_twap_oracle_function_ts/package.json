@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rimraf dist; esbuild --bundle ./src/index.ts --platform=node --target=node20 --outfile=dist/index.js --minify --sourcemap=inline",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cp:types": "cp ../../target/types/twap_oracle.ts ./src/types.ts && cp ../../target/idl/twap_oracle.json ./src/idl.json",
+    "cp:types": "cp ../../target/types/srfx_usdc_oracle.ts ./src/types.ts && cp ../../target/idl/srfx_usdc_oracle.json ./src/idl.json",
     "gen:types": "anchor-client-gen ../../target/idl/basic_oracle.json ./src/sdk",
     "types": "npm run cp:types && npm run gen:types"
   },

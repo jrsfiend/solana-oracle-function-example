@@ -19,12 +19,12 @@ pub use models::*;
 
 declare_id!("5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV");
 
-pub const PROGRAM_SEED: &[u8] = b"TWAPORACLE";
+pub const PROGRAM_SEED: &[u8] = b"SRFXUSDCORACLE";
 
 pub const ORACLE_SEED: &[u8] = b"ORACLE_V1_SEED";
 
 #[program]
-pub mod twap_oracle {
+pub mod srfx_usdc_oracle {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> anchor_lang::Result<()> {
@@ -125,7 +125,7 @@ pub struct RefreshOracles<'info> {
 /*    constraint =
                 switchboard_function.load()?.validate(
                 &enclave_signer.to_account_info()
-            )? @ TwapOracleError::FunctionValidationFailed */    
+            )? @ SrfxUsdcOracleError::FunctionValidationFailed */    
     )]
     pub switchboard_function: AccountLoader<'info, FunctionAccountData>,
     pub enclave_signer: Signer<'info>,
@@ -178,7 +178,7 @@ pub struct TriggerFunction<'info> {
 
 #[error_code]
 #[derive(Eq, PartialEq)]
-pub enum TwapOracleError {
+pub enum SrfxUsdcOracleError {
     #[msg("Invalid authority account")]
     InvalidAuthority,
     #[msg("Array overflow")]

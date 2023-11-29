@@ -4,12 +4,12 @@ skip-lint = false
 
 [programs.localnet]
 basic_oracle = "DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb"
-twap_oracle = "5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV"
+srfx_usdc_oracle = "5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV"
 task_runner_oracle = "FAqBpxJsdsAntjDv9iAb3WwL2F7PYaJLbm5B97kgbNep"
 
 [programs.devnet]
 basic_oracle = "DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb"
-twap_oracle = "5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV"
+srfx_usdc_oracle = "5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV"
 task_runner_oracle = "FAqBpxJsdsAntjDv9iAb3WwL2F7PYaJLbm5B97kgbNep"
 
 [provider]

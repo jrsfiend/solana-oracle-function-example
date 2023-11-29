@@ -1,6 +1,6 @@
-export type TwapOracle = {
+export type SrfxUsdcOracle = {
   "version": "0.1.0",
-  "name": "twap_oracle",
+  "name": "srfx_usdc_oracle",
   "instructions": [
     {
       "name": "initialize",
@@ -366,9 +366,9 @@ export type TwapOracle = {
   ]
 };
 
-export const IDL: TwapOracle = {
+export const IDL: SrfxUsdcOracle = {
   "version": "0.1.0",
-  "name": "twap_oracle",
+  "name": "srfx_usdc_oracle",
   "instructions": [
     {
       "name": "initialize",

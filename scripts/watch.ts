@@ -1,6 +1,6 @@
 import { SwitchboardProgram, loadKeypair } from "@switchboard-xyz/solana.js";
 import * as anchor from "@coral-xyz/anchor";
-import { TwapOracle } from "../target/types/twap_oracle";
+import { SrfxUsdcOracle } from "../target/types/srfx_usdc_oracle";
 import dotenv from "dotenv";
 import { sleep } from "@switchboard-xyz/common";
 import { PublicKey } from "@solana/web3.js";
@@ -10,11 +10,11 @@ dotenv.config();
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program: anchor.Program<TwapOracle> = anchor.workspace.TwapOracle;
+  const program: anchor.Program<SrfxUsdcOracle> = anchor.workspace.SrfxUsdcOracle;
   console.log(`PROGRAM: ${program.programId}`);
 
   const [programStatePubkey] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("TWAPORACLE")],
+    [Buffer.from("SRFXUSDCORACLE")],
     program.programId
   );
   console.log(`PROGRAM_STATE: ${programStatePubkey}`);
