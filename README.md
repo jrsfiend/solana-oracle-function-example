@@ -316,7 +316,7 @@ For `.rs` files in `switchboard-functions/02_srfxusdc_oracle_function_rust/src`,
 **Part 7: Dockerfile Update**
 
 1. Within `switchboard-functions/02_srfxusdc_oracle_function_rust`, find `Dockerfile`.
-2. Change references from `01_basic_oracle_function` to `02_srfxusdc_oracle_function_rust`.
+2. Change references from `01_basic_oracle` to `02_srfx_usdc_oraclet`
 
 **Part 8: Scripts and Tests**
 
