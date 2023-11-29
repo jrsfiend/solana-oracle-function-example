@@ -4,18 +4,18 @@ it's not aptly named, as we're pulling data from onchain balancer pools. Renamne
 
 **Technical Documentation:**
 
-**Objective**: Update the `BINANCE.rs` file in a Rust project to modify the data structures and fetching logic for a cryptocurrency oracle.
+**Objective**: Update the `balancer.rs` file in a Rust project to modify the data structures and fetching logic for a cryptocurrency oracle.
 
 **Before You Start:**
 
 - Ensure you have a text editor installed (e.g., Visual Studio Code).
-- Ensure you have access to the project containing the `BINANCE.rs` file.
+- Ensure you have access to the project containing the `balancer.rs` file.
 - Understand that we are modifying how data is fetched and structured in a Rust program.
 
 **Step-by-Step Instructions:**
 
 1. Open the project in your text editor.
-2. Navigate to `src/binance.rs` within the `02_srfx_usdc_oracle_function_rust` directory of the project.
+2. Navigate to `src/balancer.rs` within the `02_srfx_usdc_oracle_function_rust` directory of the project.
 3. Find the section that imports modules at the top of the file.
 4. Change `use basic_oracle::{OracleDataBorsh, TradingSymbol};` to `use srfx_usdc_oracle::{OracleDataBorsh, TradingSymbol};`.
 5. Scroll to the `Ticker` struct definition section.
@@ -26,12 +26,12 @@ it's not aptly named, as we're pulling data from onchain balancer pools. Renamne
 10. Update the `Binance` struct to contain only one `IndexData` field named `pub srfx_usdc`.
 11. Adjust the `Binance` implementation\'s `fetch` method to set up the new field based on the symbol `"SRFXUSD"` and the provided `price`.
 
-**For High-School English:**
+**ELI5:**
 
 Hey there! We\'re going to make some changes to a code file for a Rust project, so it better fits the data we want to get from a cryptocurrency\'s pricing info. Don\'t worry; I\'ll guide you through it.
 
 1. First, find and open the project folder with your text editor.
-2. Look for a file named `binance.rs` inside the `src` folder.
+2. Look for a file named `balancer.rs` inside the `src` folder.
 3. At the start of the file, we\'ve got some lines that add tools we\'ll need. We\'re going to swap `basic_oracle` with `srfx_usdc_oracle` so we can use the latest tools.
 4. Next, there\'s a part where we describe the kind of data we want. We now only need the symbol (like "SRFXUSD") and the price. So we\'re going to remove all the extra details we don\'t need anymore.
 5. Then, we\'ll make sure when we use this data later on, we only focus on the price.
@@ -57,13 +57,8 @@ Let's break down this programming difference (also known as a diff or patch) and
    - Original Seed: `BASICORACLE`
    - New Seed: `SRFXUSDCORACLE`
 
-3. **Adjustments in the `RefreshOracles` Structure:**
-   - Remove the line `has_one = switchboard_function` in the structure.
 
-4. **Comment Out Constraint:**
-   - The constraint checking the `switchboard_function` is commented out. This means it is turned off and won't be checked or enforced during the program execution.
-
-**Step-by-Step Instructions in High-School English:**
+**Step-by-Step Instructions in ELI5:**
 
 1. **Find the Name Tags:**
    - Old Name Tag: It's a long combo of letters and numbers that starts with `3NKU...`
@@ -73,11 +68,6 @@ Let's break down this programming difference (also known as a diff or patch) and
    - Old Secret Code: It looks like this: `BASICORACLE`
    - New Secret Code: Now, it's different and says `SRFXUSDCORACLE`
 
-3. **Tweak the `RefreshOracles` Recipe:**
-   - There's a line about `has_one = switchboard_function` - just remove, or 'take-out,' that part of the recipe.
-
-4. **Turn Off a Rule Check:**
-   - There's a rule inside the program we don't want to use right now. So, like crossing it out, we add some symbols (`/* ... */`) around it.
 
 And that's it!
 
@@ -93,7 +83,7 @@ Now let's talk about changes to `models.rs`.
 2. **Update `MyOracleState` To Reflect New Data:**
    - Change multiple oracle data tracking like `btc, usdc, eth, sol, doge` to just `srfx_usdc`.
 
-**Step-by-Step Instructions in High-School English:**
+**Step-by-Step Instructions ELI5:**
 
 1. **Streamline `OracleData`:**
    - You'll remove extra details from both the `OracleData` and its buddy `OracleDataBorsh`. No more one-hour and 24-hour stats; just focus on the main price.
@@ -132,36 +122,18 @@ Here is how we will do it, step by step:
 
    Think of this as adding special spices to our dough.
 
-5. Continue adding more ingredients. Here’s a big one:
-   ```rust
-   declare_id!("DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb");
-   ```
-
-   This is like writing down the secret code to enter our baking contest!
-
-6. Paste these new lines as well:
+5. Paste these new lines as well:
    ```rust
    pub const PROGRAM_SEED: &[u8] = b"SRFXUSDCORACLE";
    ```
 
    That’s like setting the right oven temperature.
 
-7. Keep adding more lines as instructed by the recipe (diff) you have. Here\'s an example:
-   ```rust
-   pub struct MyProgramState {
-      pub bump: u8,
-      pub authority: Pubkey,
-      // ...and so on.
-   }
-   ```
-
-   Imagine you’re arranging the toppings on our baking masterpiece.
-
-8. Finally, save your `main.rs` file. It’s as if you’ve put the cake in the oven and now you’re waiting for it to bake.
+6. Finally, save your `main.rs` file. It’s as if you’ve put the cake in the oven and now you’re waiting for it to bake.
 
 Great job! You’ve just updated a computer program.
 
-**High-School English Version: How to Make Your Code Cool and Get It Working**
+**ELI5 Version: How to Make Your Code Cool and Get It Working**
 
 Hey friends! Today in our cool computer club, we\'re going to jazz up a computer recipe called `main.rs`. Imagine it’s like a TikTok dance routine that we’re adding new moves to.
 
@@ -187,109 +159,10 @@ Follow these chill steps to do it:
 
    That’s the sound of your dance going viral!
 
-4. Now let\'s spin the globe and add some exotic flair:
-   ```rust
-   declare_id!("DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb");
-   ```
-
-   This is like the drumbeat that makes everyone look.
-
-5. Keep throwing in the crazy handstands and twirls until it feels like we’ve got the freshest routine in town.
-6. Hit the "Save" button as if you’re hitting “Post” on the coolest TikTok ever.
+4. Keep throwing in the crazy handstands and twirls until it feels like we’ve got the freshest routine in town.
+5. Hit the "Save" button as if you’re hitting “Post” on the coolest TikTok ever.
 
 Well done! You’ve just taken your code (aka the dance of the computers) from the \'meh\' pile to the \'wow\' pile. Rock on!
-
-Hello! If you\'re new to coding, don\'t worry. Today, we\'re going to walk through how to change a computer file called `main.rs`. This file is written in a programming language called Rust, which computers understand.
-
-Just think of `main.rs` as a recipe that we’re going to tweak with new ingredients. The "ingredients," in this case, are bits of code that tell the computer what to do. We\'re going to add new instructions to our recipe to make it better.
-
-Here is how we will do it, step by step:
-
-1. First, open the `main.rs` file in a text editor that lets you edit code, like Visual Studio Code or Sublime Text.
-2. Start with the existing ingredients (lines of code) and prepare to add new ones.
-3. We\'re adding new tools for our recipe to work with. Copy and paste the following ingredients into your `main.rs` file at the very top:
-   ```rust
-   use std::future::Future;
-   use std::pin::Pin;
-   use std::boxed::Box;
-   ```
-
-   This is like getting new types of flour and sugar ready for our baking!
-
-4. Next, paste these ingredients right after the ones you just added:
-   ```rust
-   use rust_decimal::Decimal;
-   use ethers::{
-      providers::{Http, Provider},
-   };
-   ```
-
-   Think of this as adding special spices to our dough.
-
-5. Continue adding more ingredients. Here’s a big one:
-   ```rust
-   declare_id!("DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb");
-   ```
-
-   This is like writing down the secret code to enter our baking contest!
-
-6. Paste these new lines as well:
-   ```rust
-   pub const PROGRAM_SEED: &[u8] = b"SRFXUSDCORACLE";
-   ```
-
-   That’s like setting the right oven temperature.
-
-7. Keep adding more lines as instructed by the recipe (diff) you have. Here\'s an example:
-   ```rust
-   pub struct MyProgramState {
-      pub bump: u8,
-      pub authority: Pubkey,
-      // ...and so on.
-   }
-   ```
-
-   Imagine you’re arranging the toppings on our baking masterpiece.
-
-8. Finally, save your `main.rs` file. It’s as if you’ve put the cake in the oven and now you’re waiting for it to bake.
-
-Great job! You’ve just updated a computer program.
-
-**High-School English Version: How to Make Your Code Cool and Get It Working**
-
-Hey friends! Today in our cool computer club, we\'re going to jazz up a computer recipe called `main.rs`. Imagine it’s like a TikTok dance routine that we’re adding new moves to.
-
-Follow these chill steps to do it:
-
-1. Fire up a neat app where you can fiddle with code - something like the "Notes" for nerds.
-2. Our current dance routine (code) is cool, but we need hotter moves. We’ll add trendy steps at the start of our routine:
-   ```rust
-   use std::future::Future;
-   use std::pin::Pin;
-   use std::boxed::Box;
-   ```
-
-   That’s like learning new moves from the latest viral vid!
-
-3. Bring in the funky beats. Add this fresh music (code) right below our new dance moves:
-   ```rust
-   use rust_decimal::Decimal;
-   use ethers::{
-      providers::{Http, Provider},
-   };
-   ```
-
-   That’s the sound of your dance going viral!
-
-4. Now let\'s spin the globe and add some exotic flair:
-   ```rust
-   declare_id!("DApMSLHYpnXB4qk71vbZS8og4w31hg8Dkr14coaRFANb");
-   ```
-
-   This is like the drumbeat that makes everyone look.
-
-5. Keep throwing in the crazy handstands and twirls until it feels like we’ve got the freshest routine in town.
-6. Hit the "Save" button as if you’re hitting “Post” on the coolest TikTok ever.
 
 We've got some more changes to make in our project, and I'm here to walk you through them, step by step. Cool? Cool.
 
@@ -341,7 +214,7 @@ For `.rs` files in `switchboard-functions/02_srfxusdc_oracle_function_rust/src`,
 
 1. Update script and test files like `init-basic-oracle.ts` and `basic_oracle.ts` in a similar manner, focusing on replacing `basic_oracle` with `srfxusdc_oracle` where applicable.
 
-**High-School English Version:**
+**ELI5 Version:**
 
 Want to make some cool changes to our code? Sweet! Grab your keyboard and join me as we update some of our project files together.
 
