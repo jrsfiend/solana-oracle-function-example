@@ -2,7 +2,7 @@
 
 ## Objective
 
-We want to adjust a sample Switchboard program and function to grab the price of SRFX vs USD, instead of the current functionality of the example. Luckily, the example does nearly all the work for us (nice) and the team have made some further stuff abstracted that makes this (much, much) easier than it used to be - ie. switchboard_utils::exchanges::*Api::fetch_ticker. Phew!
+We want to adjust a sample Switchboard program and function to grab the price of SRFX vs USD, instead of the current functionality of the example. Luckily, the example does nearly all the work for us (nice) and the team have made some further stuff abstracted that makes this (much, much) easier than it used to be - ie. `switchboard_utils::exchanges::*Api::fetch_ticker`. Phew!
 
 fork and clone https://github.com/switchboard-xyz/solana-oracle-function-example!
 
