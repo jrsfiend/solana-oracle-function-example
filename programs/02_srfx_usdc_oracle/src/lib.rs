@@ -1,6 +1,6 @@
 #![allow(clippy::result_large_err)]
 // Program: Solana TWAP Oracle
-// This Solana program will allow you to peridoically relay information from Binance to your
+// This Solana program will allow you to peridoically relay information from Balancer to your
 // program and store in an account. When a user interacts with our program they will reference
 // the price from the previous push.
 // - initialize:        Initializes the program and creates the accounts.
