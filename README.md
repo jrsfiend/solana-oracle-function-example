@@ -260,7 +260,7 @@ We've got some more changes to make in our project, and I'm here to walk you thr
 
 1. Locate the file `Anchor.toml`.
 2. It's like a list of settings. Find the section `[programs.localnet]` and `[programs.devnet]`.
-3. Change the `srfxusdc_oracle` line to a new address, `5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV`.
+3. Change the `srfx_usdc_oracle` line to a new address, `5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV`.
 4. Save your changes.
 
 **Part 3: Makefile Adjustments**
@@ -269,7 +269,7 @@ This one's a bit trickier, so follow closely!
 
 1. Find the `Makefile`.
 2. Look for lines with `-f ./switchboard-functions/01_basic_oracle_function/Dockerfile`.
-3. Change them to `-f ./switchboard-functions/02_srfxusdc_oracle_function_rust/Dockerfile`.
+3. Change them to `-f ./switchboard-functions/02_srfx_usdc_oracle_function_rust/Dockerfile`.
 4. Also, update `DOCKERHUB_ORGANIZATION` to `your own docker username`.
 
 **Part 4: `pnpm-lock.yaml` Update**
@@ -281,7 +281,7 @@ This one's a bit trickier, so follow closely!
 
 **Part 5: `Cargo.toml` Changes**
 
-1. Find `Cargo.toml` inside `switchboard-functions/02_srfxusdc_oracle_function_rust`.
+1. Find `Cargo.toml` inside `switchboard-functions/02_srfx_usdc_oracle_function_rust`.
 2. upon updating, dependencies will look like this:
 
 ```
@@ -311,11 +311,11 @@ primitive-types = "*"
 
 **Part 6: Updates for Rust Files**
 
-For `.rs` files in `switchboard-functions/02_srfxusdc_oracle_function_rust/src`, follow similar steps in updating versions and dependencies.
+For `.rs` files in `switchboard-functions/02_srfx_usdc_oracle_function_rust/src`, follow similar steps in updating versions and dependencies.
 
 **Part 7: Dockerfile Update**
 
-1. Within `switchboard-functions/02_srfxusdc_oracle_function_rust`, find `Dockerfile`.
+1. Within `switchboard-functions/02_srfx_usdc_oracle_function_rust`, find `Dockerfile`.
 2. Change references from `01_basic_oracle` to `02_srfx_usdc_oracle`
 
 **Part 8: Scripts and Tests**
