@@ -59,22 +59,18 @@ Now let's talk about changes to `models.rs`.
 
 main.rs
 
-Just think of `main.rs` as a recipe that we’re going to tweak with new ingredients. The "ingredients," in this case, are bits of code that tell the computer what to do. We\'re going to add new instructions to our recipe to make it better.
-
 Here is how we will do it, step by step:
 
 1. First, open the `main.rs` file in a text editor that lets you edit code, like Visual Studio Code or Sublime Text.
-2. Start with the existing ingredients (lines of code) and prepare to add new ones.
-3. We\'re adding new tools for our recipe to work with. Copy and paste the following ingredients into your `main.rs` file at the very top:
+2. Start with the existing code and prepare to add new ones.
+3. We\'re adding new tools for our recipe to work with. Copy and paste the following code into your `main.rs` file at the very top:
    ```rust
    use std::future::Future;
    use std::pin::Pin;
    use std::boxed::Box;
    ```
 
-   This is like getting new types of flour and sugar ready for our baking!
-
-4. Next, paste these ingredients right after the ones you just added:
+4. Next, paste these code right after the ones you just added:
    ```rust
    use rust_decimal::Decimal;
    use ethers::{
@@ -82,14 +78,10 @@ Here is how we will do it, step by step:
    };
    ```
 
-   Think of this as adding special spices to our dough.
-
 5. Paste these new lines as well:
    ```rust
    pub const PROGRAM_SEED: &[u8] = b"SRFXUSDCORACLE";
    ```
-
-   That’s like setting the right oven temperature.
 
 6. I'm not sure we should worry stepping thru these helper functions, as they will become standard in switchboard_utils as time goes on. If you have any specific issues or face any questions, feel free to reach me at @staccoverflow and we can work thru them!
 
