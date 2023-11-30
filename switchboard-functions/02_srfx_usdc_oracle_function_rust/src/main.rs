@@ -83,6 +83,7 @@ msg!("balancer_oracle_function");
     let wsteth_amount = Balancer::fetch_balancer_v2_quote(rpc_url, SFRXETH_WSTETH_POOL, SFRX_ETH, WST_ETH, u256!(10u128.pow(SFRXETH_DECIMALS).to_string()), 0.1).await.unwrap();
     let weth_amount = Balancer::fetch_balancer_v2_quote(rpc_url, WSTETH_WETH_POOL, WST_ETH, WETH, wsteth_amount, 0.1).await.unwrap();
     let weth_amount = weth_amount / 1000000000;
+    println!("{} 1 {}", weth_amount, wsteth_amount);
     // let usdc_amount = fetch_balancer_v2_quote(rpc_url, WETH_USDC_POOL_UNSAFE, WETH, USDC, weth_amount, 0.1).await?;
     let v: Vec<Pin<Box<dyn Future<Output = Result<Decimal, SbError>> + Send >>> = vec![
         Box::pin(switchboard_utils::exchanges::BitfinexApi::fetch_ticker("tETHUSD", None).map_ok(|x| x.last_price)),
@@ -91,6 +92,7 @@ msg!("balancer_oracle_function");
         Box::pin(switchboard_utils::exchanges::KrakenApi::fetch_ticker("ETHUSD", None).map_ok(|x| x.close[0]))
 
     ];
+    println!("{} 2{}", weth_amount, wsteth_amount);
     let eth_prices: Vec<Decimal> = join_all(v).await.into_iter().map(|x| x.unwrap()).collect();
     let eth_price = Math::median(eth_prices).unwrap();
     println!("ETH Price: {}", eth_price);

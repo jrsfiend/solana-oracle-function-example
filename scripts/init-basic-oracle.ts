@@ -1,6 +1,6 @@
 import { SwitchboardProgram, loadKeypair } from "@switchboard-xyz/solana.js";
 import * as anchor from "@coral-xyz/anchor";
-import { BasicOracle } from "../target/types/basic_oracle";
+import { SrfxUsdcOracle } from "../target/types/srfx_usdc_oracle";
 import dotenv from "dotenv";
 import { loadDefaultQueue } from "./utils";
 import fs from 'fs'
@@ -25,11 +25,11 @@ dotenv.config();
   let program = new anchor.Program(
     JSON.parse(
       fs.readFileSync(
-        "./target/idl/basic_oracle.json",
+        "./target/idl/srfx_usdc_oracle.json",
         "utf8"
       ).toString()
     ),
-    new PublicKey("BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm"),
+    new PublicKey("4sfoyawsXeao4WoeDtafuc1sbVmEcr72XEhGiNFYDpUv"),
     provider
   );
   console.log(`PROGRAM: ${program.programId}`);
@@ -37,7 +37,7 @@ dotenv.config();
   const switchboardProgram = await SwitchboardProgram.fromProvider(provider);
 
   const [programStatePubkey, b1] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("BASICORACLE")],
+    [Buffer.from("SRFX_USDC_ORACLE")],
     program.programId
   );
   console.log(`PROGRAM_STATE: ${programStatePubkey}`);
@@ -55,6 +55,13 @@ dotenv.config();
     console.log(`Program state already initialized`);
     console.log(
       `PROGRAM_STATE: \n${JSON.stringify(programState, undefined, 2)}`
+    );
+    
+    const oracleState = await program.account.myOracleState.fetch(
+      oraclePubkey
+    );
+    console.log(
+      `ORACLE_STATE: \n${JSON.stringify(oracleState, undefined, 2)}`
     );
     
   const signature = await program.methods
