@@ -495,3 +495,7 @@ sgx.allowed_files = [
 ```
 
 and then above `RUN rm -f /measurement.txt && \` in the Dockerfile add `COPY ./switchboard-functions/02_srfx_usdc_oracle_function_rust/app.manifest.template /sgx/app.manifest.template`
+
+Lastly, you do only have about 10 seconds to execute within the enclave. Where possible, add println! statements to see whereabouts in the execution you are in case you run out of time and need to optimize further - for instance, above and below the async calls to the switchboard_utils::exchanges apis. 
+
+Good luck, have fun, reach out if you need help or clarification!
