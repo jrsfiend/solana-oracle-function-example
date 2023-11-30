@@ -1,6 +1,6 @@
 import { SwitchboardProgram, loadKeypair } from "@switchboard-xyz/solana.js";
 import * as anchor from "@coral-xyz/anchor";
-import { SrfxUsdcOracle } from "../target/types/srfx_usdc_oracle";
+import { SRFX_USDC_ORACLE } from "../target/types/srfx_usdc_oracle";
 import dotenv from "dotenv";
 import { sleep } from "@switchboard-xyz/common";
 import { PublicKey } from "@solana/web3.js";
@@ -10,11 +10,11 @@ dotenv.config();
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program: anchor.Program<SrfxUsdcOracle> = anchor.workspace.SrfxUsdcOracle;
+  const program: anchor.Program<SRFX_USDC_ORACLE> = anchor.workspace.SRFX_USDC_ORACLE;
   console.log(`PROGRAM: ${program.programId}`);
 
   const [programStatePubkey] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("SRFXUSDCORACLE")],
+    [Buffer.from("SRFX_USDC_ORACLE")],
     program.programId
   );
   console.log(`PROGRAM_STATE: ${programStatePubkey}`);
@@ -23,7 +23,7 @@ dotenv.config();
   );
 
   const [oraclePubkey] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("ORACLE_V1_SEED")],
+    [Buffer.from("ORACLE_SRFX_SEED")],
     program.programId
   );
   console.log(`ORACLE_PUBKEY: ${oraclePubkey}`);

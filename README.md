@@ -25,7 +25,7 @@ it's not aptly named, as we're pulling data from onchain balancer pools. Renamne
 1. Open the project in your text editor.
 2. Navigate to `src/balancer.rs` within the `02_srfx_usdc_oracle_function_rust` directory of the project.
 3. Find the section that imports modules at the top of the file.
-4. Change `use basic_oracle::{OracleDataBorsh, TradingSymbol};` to `use srfx_usdc_oracle::{OracleDataBorsh, TradingSymbol};`.
+4. Change `use BASICORACLE::{OracleDataBorsh, TradingSymbol};` to `use srfx_usdc_oracle::{OracleDataBorsh, TradingSymbol};`.
 5. Scroll to the `Ticker` struct definition section.
 6. Remove the unused fields such as `priceChange`, `priceChangePercent`, `weightedAvgPrice`, `openPrice`, `highPrice`, `lowPrice`, `lastPrice`, `volume`, `quoteVolume`, `openTime`, and `closeTime`.
 7. Change `pub lastPrice: String,` to `pub price: I256,`.
@@ -42,11 +42,11 @@ Let's apply the changes to the file `lib.rs`. These changes involve identifiers 
 
 1. **Find Identifiers:**
    - Original Identifier: `3NKUtPKboaQN4MwY3nyULBesFaW7hHsXFrBTVjbn2nBr`
-   - New Identifier: `5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV`
+   - New Identifier: `2X2ocABrA21nKv87MT2n71kZKv6DsFmxv3b9mTTS4AET`
 
 2. **Update Program Seed:**
    - Original Seed: `BASICORACLE`
-   - New Seed: `SRFXUSDCORACLE`
+   - New Seed: `SRFX_USDC_ORACLE`
 
 
 Now let's talk about changes to `models.rs`.
@@ -82,7 +82,7 @@ Here is how we will do it, step by step:
 
 5. Paste these new lines as well:
    ```rust
-   pub const PROGRAM_SEED: &[u8] = b"SRFXUSDCORACLE";
+   pub const PROGRAM_SEED: &[u8] = b"SRFX_USDC_ORACLE";
    ```
 
 6. I'm not sure we should worry stepping thru these helper functions, as they will become standard in switchboard_utils as time goes on. If you have any specific issues or face any questions, feel free to reach me at @staccoverflow and we can work thru them!
@@ -260,7 +260,7 @@ We've got some more changes to make in our project, and I'm here to walk you thr
 
 1. Locate the file `Anchor.toml`.
 2. It's like a list of settings. Find the section `[programs.localnet]` and `[programs.devnet]`.
-3. Change the `srfx_usdc_oracle` line to a new address, `5Xf8maajW5MCaeUPn1RLSJY2CczZiWN31eGuDWePgvSV`.
+3. Change the `srfx_usdc_oracle` line to a new address, `BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm`.
 4. Save your changes.
 
 **Part 3: Makefile Adjustments**
@@ -320,7 +320,7 @@ For `.rs` files in `switchboard-functions/02_srfx_usdc_oracle_function_rust/src`
 
 **Part 8: Scripts and Tests**
 
-1. Update script and test files like `init-basic-oracle.ts` and `basic_oracle.ts` in a similar manner, focusing on replacing `basic_oracle` with `srfx_usdc_oracle` where applicable.
+1. Update script and test files like `init-basic-oracle.ts` and `BASICORACLE.ts` in a similar manner, focusing on replacing `BASICORACLE` with `srfx_usdc_oracle` where applicable.
 
 --todo: build, deploy anchor program && build, push docker image for function && create function && trigger function--
 
@@ -340,7 +340,7 @@ find out your enclave hash:
 
 create the function on Switchboard, your friendly local neighbourhood superpower factory on many chains: 
 
-```sb solana function create ALZNPjwkbhrH87cV7Mv8qFjdZzpfep58X3iAhoYzeksC --name assessment-magick --fundAmount 0.1 --container your own docker username/solana-basic-oracle-function --version latest -k ~/.config/solana/id.json --mrEnclave {response from above cat command} --cluster devnet```
+```sb solana function create ALZNPjwkbhrH87cV7Mv8qFjdZzpfep58X3iAhoYzeksC --name assessment-magick --fundAmount 0.1 --container your own docker username/solana-balancer-oracle-function --version latest -k ~/.config/solana/id.json --mrEnclave {response from above cat command} --cluster devnet```
 
 Note your Function Id.
 
@@ -358,7 +358,7 @@ remove the bits that say:
     await attestationQueueAccount.createFunctionInstruction(payer.publicKey, {
       schedule: "15 * * * * *",
       container: `${process.env.DOCKERHUB_ORGANIZATION ?? "switchboardlabs"}/${
-        process.env.DOCKERHUB_CONTAINER_NAME ?? "solana-basic-oracle-function"
+        process.env.DOCKERHUB_CONTAINER_NAME ?? "solana-balancer-oracle-function"
       }`,
       version: `${process.env.DOCKERHUB_CONTAINER_VERSION ?? "typescript"}`, // TODO: set to 'latest' after testing
     });

@@ -65,8 +65,8 @@ impl MyOracleState {
         for row in rows.iter() {
             match row.symbol {
                 TradingSymbol::Srfx_usdc => {
-                    msg!("FN_OUT: {}", { row.data.price });
                     self.srfx_usdc = row.data.into();
+                    msg!("price: {}", { self.srfx_usdc.price });
                 }
                 _ => {
                     msg!("no trading symbol found for {:?}", row.symbol);

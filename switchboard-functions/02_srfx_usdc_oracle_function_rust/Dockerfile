@@ -8,7 +8,7 @@ FROM switchboardlabs/sgx-function AS builder
 #     set -exu && \
 #     DEBIAN_FRONTEND=noninteractive apt update && \
 #     apt -y --no-install-recommends install \
-#     protobuf-compiler
+#     protobuf-compiler 
 
 
 # First copy the anchor program so we can re-use the type definitions
@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry,id=${TARGETPLATFORM} \
     --mount=type=cache,target=target,id=${TARGETPLATFORM} \
     cargo build --release && \
     cargo strip && \
-    mv target/release/basic-oracle-function /sgx/app
+    mv target/release/balancer-oracle-function /sgx/app
 
 FROM switchboardlabs/sgx-function
 
