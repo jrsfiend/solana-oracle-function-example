@@ -14,7 +14,7 @@
 
 pub use switchboard_solana::prelude::*;
 
-declare_id!("BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm");
+declare_id!("FTSnBWrrDxGPBayRsCA7V4CzRgSYWjFWWKbMDmAEAecb");
 
 pub const PROGRAM_SEED: &[u8] = b"BASICORACLE";
 

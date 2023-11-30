@@ -12,13 +12,13 @@ pub struct MyProgramState {
 #[zero_copy(unsafe)]
 pub struct OracleData {
     pub oracle_timestamp: i64,
-    pub price: i128
+    pub price: u64
 }
 
 #[derive(Copy, Clone, Default, AnchorSerialize, AnchorDeserialize)]
 pub struct OracleDataBorsh {
     pub oracle_timestamp: i64,
-    pub price: i128
+    pub price: u64
 }
 impl From<OracleDataBorsh> for OracleData {
     fn from(value: OracleDataBorsh) -> Self {
@@ -42,7 +42,7 @@ impl OracleData {
         // Do some logic here based on the twap
 
         let price: f64 = SwitchboardDecimal {
-            mantissa: self.price,
+            mantissa: self.price as i128,
             scale: 9,
         }
         .try_into()?;

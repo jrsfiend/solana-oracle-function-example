@@ -3,20 +3,35 @@
 use crate::*;
 
 use switchboard_solana::get_ixn_discriminator;
-
+use srfx_usdc_oracle::{OracleDataBorsh, TradingSymbol, OracleDataWithTradingSymbol, RefreshOraclesParams};
 use serde::Deserialize;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Default, Clone, Debug)]
 pub struct Ticker {
     pub symbol: String, // BTCUSDT
-    pub price: u64,  // 0.00000000
+    pub price: I256,  // 0.00000000
 }
 
 #[derive(Clone, Debug)]
 pub struct IndexData {
     pub symbol: String,
     pub data: Ticker,
+}
+impl Into<OracleDataBorsh> for IndexData {
+    fn into(self) -> OracleDataBorsh {
+        let oracle_timestamp: i64 = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs()
+            .try_into()
+            .unwrap_or_default();
+
+        OracleDataBorsh {
+            oracle_timestamp,
+            price: self.data.price.as_u64()
+        }
+    }
 }
 
 pub struct Balancer {
@@ -97,15 +112,40 @@ impl Balancer {
     }
 
     pub fn to_ixns(&self, runner: &FunctionRunner) -> Vec<Instruction> {
+        let rows: Vec<OracleDataWithTradingSymbol> = vec![
+            OracleDataWithTradingSymbol {
+                symbol: TradingSymbol::Srfx_usdc,
+                data: self.srfx_usdc.clone().into(),
+            }
+            // OracleDataWithTradingSymbol {
+            // symbol: TradingSymbol::Sol,
+            // data: self.sol_usdt.clone().into(),
+            // },
+            // OracleDataWithTradingSymbol {
+            // symbol: TradingSymbol::Doge,
+            // data: self.doge_usdt.clone().into(),
+            // },
+        ];
+        println!("{}, {}", self.srfx_usdc.data.price, TradingSymbol::Srfx_usdc as u8);
+
+        let params = RefreshOraclesParams { rows };
 
         let (program_state_pubkey, _state_bump) =
-            Pubkey::find_program_address(&[b"BASICORACLE"], &Pubkey::from_str("BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm").unwrap());
+            Pubkey::find_program_address(&[b"SRFX_USDC_ORACLE"], &srfx_usdc_oracle::ID);
+
+        let (oracle_pubkey, _oracle_bump) =
+            Pubkey::find_program_address(&[b"ORACLE_SRFX_SEED"], &srfx_usdc_oracle::ID);
 
         let ixn = Instruction {
-            program_id: Pubkey::from_str("BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm").unwrap(),
+            program_id: srfx_usdc_oracle::ID,
             accounts: vec![
                 AccountMeta {
                     pubkey: program_state_pubkey,
+                    is_signer: false,
+                    is_writable: true,
+                },
+                AccountMeta {
+                    pubkey: oracle_pubkey,
                     is_signer: false,
                     is_writable: true,
                 },
@@ -121,8 +161,8 @@ impl Balancer {
                 },
             ],
             data: [
-                get_ixn_discriminator("update_price").to_vec(),
-                self.srfx_usdc.data.price.to_le_bytes().to_vec(),
+                get_ixn_discriminator("refresh_oracles").to_vec(),
+                params.try_to_vec().unwrap(),
             ]
             .concat(),
         };

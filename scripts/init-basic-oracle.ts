@@ -29,7 +29,7 @@ dotenv.config();
         "utf8"
       ).toString()
     ),
-    new PublicKey("4sfoyawsXeao4WoeDtafuc1sbVmEcr72XEhGiNFYDpUv"),
+    new PublicKey("FTSnBWrrDxGPBayRsCA7V4CzRgSYWjFWWKbMDmAEAecb"),
     provider
   );
   console.log(`PROGRAM: ${program.programId}`);
@@ -64,18 +64,6 @@ dotenv.config();
       `ORACLE_STATE: \n${JSON.stringify(oracleState, undefined, 2)}`
     );
     
-  const signature = await program.methods
-  .updatePrice(1)
-  .accounts({
-    program: programStatePubkey,
-    authority: payer.publicKey,
-    switchboardFunction: new PublicKey("8y2PQz9PMG8fQmZj5geoFhK9DawzVdgSsVZb1o26sigx"),
-    attestationQueue: new PublicKey("CkvizjVnm2zA5Wuwan34NhVT3zFc7vqUyGnA6tuEF5aE"),
-    attestationProgram: new PublicKey("sbattyXrzedoNATfc4L31wC9Mhxsi1BmFhTiN8gDshx")
-  })
-  .rpc();
-
-console.log(`[TX] initialize: ${signature}`);
     return;
 
     // Account already initialized
@@ -99,10 +87,12 @@ console.log(`[TX] initialize: ${signature}`);
   console.log(`SWITCHBOARD_FUNCTION: ${functionAccount.publicKey}`);
 
   const signature = await program.methods
-    .initialize()
+    .initialize(b1, b2)
     .accounts({
+      oracle: oraclePubkey,
       program: programStatePubkey,
       authority: payer.publicKey,
+      payer: payer.publicKey,
       switchboardFunction: functionAccount.publicKey,
     })
     .signers([...functionInit.signers])

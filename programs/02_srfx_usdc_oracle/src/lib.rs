@@ -17,7 +17,7 @@ pub use switchboard_solana::prelude::*;
 pub mod models;
 pub use models::*;
 
-declare_id!("BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm");
+declare_id!("FTSnBWrrDxGPBayRsCA7V4CzRgSYWjFWWKbMDmAEAecb");
 
 pub const PROGRAM_SEED: &[u8] = b"SRFX_USDC_ORACLE";
 
@@ -111,7 +111,7 @@ pub struct RefreshOracles<'info> {
     #[account(
         seeds = [PROGRAM_SEED],
         bump = program.load()?.bump,
-    //    has_one = switchboard_function
+       has_one = switchboard_function
     )]
     pub program: AccountLoader<'info, MyProgramState>,
 
@@ -123,12 +123,12 @@ pub struct RefreshOracles<'info> {
     pub oracle: AccountLoader<'info, MyOracleState>,
 
     // We use this to verify the functions enclave state was verified successfully
-   /* #[account(
+   #[account(
     constraint =
                 switchboard_function.load()?.validate(
                 &enclave_signer.to_account_info()
             )? @ SRFX_USDC_ORACLEError::FunctionValidationFailed     
-    )] */
+    )]
     pub switchboard_function: AccountLoader<'info, FunctionAccountData>,
     pub enclave_signer: Signer<'info>,
 }

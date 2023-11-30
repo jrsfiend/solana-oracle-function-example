@@ -33,6 +33,7 @@ it's not aptly named, as we're pulling data from onchain balancer pools. Renamne
 9. Adjust the `Into<OracleDataBorsh>` implementation for `IndexData` to only convert the new `price` field from the `Ticker` struct.
 10. Update the `Balancer` struct to contain only one `IndexData` field named `pub srfx_usdc`.
 11. Adjust the `Balancer` implementation\'s `fetch` method to set up the new field based on the symbol `"SRFXUSD"` and the provided `price`.
+12. change the line inside `impl Into<OracleDataBorsh> for IndexData {` to `price: self.data.price.as_u64()`
 
 lib.rs
 
@@ -54,10 +55,13 @@ Now let's talk about changes to `models.rs`.
 **Step-by-Step Instructions for Beginners:**
 
 1. **Simplify `OracleData` Structures:**
-   - Remove unnecessary data: `volume_1hr, volume_24hr, twap_1hr, twap_24hr` from both `OracleData` and `OracleDataBorsh`
+   - Remove unnecessary data: `volume_1hr, volume_24hr, twap_1hr, twap_24hr` from both `OracleData` and `OracleDataBorsh`.
 
 2. **Update `MyOracleState` To Reflect New Data:**
    - Change multiple oracle data tracking like `btc, usdc, eth, sol, doge` to just `srfx_usdc`.
+
+3. **Update `price` To Use Smaller Type:**
+    - ensure each price is `price: u64`.
 
 main.rs
 
@@ -244,6 +248,7 @@ Summmon the Balancer file to first save and then build the ixns for this perform
     Ok(())
 
 ```
+8. we're constrained on execution time within the sgx enclave, so let's remove the extra `if` block near the top containing `runner.emit_error(199).await.unwrap();`
 
 Great job! You’ve just updated a computer program.
 
@@ -418,3 +423,84 @@ trigger as a scheduled routine:
 
 ```sb solana routine create FunctionId --name magick-minutely --schedule "*/1 * * * *" -k ~/.config/solana/id.json --cluster devnet```
 
+Next up, it's important that we increase the stacksize for our sgx enclave - as we're processing an awful lot of data, we'll need custom directives when initializing. We accomplish this using an `app.manifest.template`. Stick it in your `02_srfx_usdc_oracle_function_rust` folder:
+
+```
+{% set arch_libdir = "/lib/x86_64-linux-gnu" %}
+{% set log_level = "error" %}
+
+sys.stack.size = "2048K"
+sys.brk.max_size = "1024K"
+
+loader.entrypoint = "file:{{ gramine.libos }}"
+libos.entrypoint = "/sgx/app"
+
+loader.log_level = "{{ log_level }}"
+
+loader.env.LD_LIBRARY_PATH = "/usr/lib:/lib:{{ arch_libdir }}:/usr/lib:/usr/{{ arch_libdir }}"
+loader.env.PATH = "/bin:/usr/bin"
+
+loader.env.IS_SIMULATION = { passthrough = true }
+loader.env.CLUSTER = { passthrough = true }
+loader.env.MINIMUM_CONTEXT_SLOT = { passthrough = true }
+loader.env.RPC_URL = { passthrough = true }
+loader.env.PAYER = { passthrough = true }
+loader.env.FUNCTION_KEY = { passthrough = true }
+loader.env.FUNCTION_DATA = { passthrough = true }
+loader.env.FUNCTION_REQUEST_KEY = { passthrough = true }
+loader.env.FUNCTION_REQUEST_DATA = { passthrough = true }
+loader.env.FUNCTION_ROUTINE_KEY = { passthrough = true }
+loader.env.FUNCTION_ROUTINE_DATA = { passthrough = true }
+loader.env.QUEUE_AUTHORITY = { passthrough = true }
+loader.env.VERIFIER = { passthrough = true }
+loader.env.VERIFIER_ENCLAVE_SIGNER = { passthrough = true }
+loader.env.REWARD_RECEIVER = { passthrough = true }
+loader.env.CHAIN_ID = { passthrough = true }
+loader.env.VERIFYING_CONTRACT = { passthrough = true }
+loader.env.FUNCTION_PARAMS = { passthrough = true }
+loader.env.FUNCTION_CALL_IDS = { passthrough = true }
+
+fs.mounts = [
+  { path = "/etc", uri = "file:/etc" },
+  { uri = "file:/sgx", path = "/sgx" },
+  { uri = "file:/etc/ssl/certs", path = "/etc/ssl/certs" },
+  { uri = "file:/lib64", path = "/lib64" },
+  { uri = "file:/usr", path = "/usr" },
+  { uri = "file:/usr/lib/ssl/certs", path = "/usr/lib/ssl/certs" },
+  { uri = "file:{{ arch_libdir }}", path = "{{ arch_libdir }}" },
+  { uri = "file:{{ gramine.runtimedir() }}", path = "/lib" },
+]
+
+loader.env.MALLOC_ARENA_MAX = "1"
+sgx.enclave_size = "128M"
+sgx.nonpie_binary = true
+sgx.edmm_enable = {{ 'true' if env.get('EDMM', '0') == '1' else 'false' }}
+sgx.max_threads = 128
+sgx.remote_attestation = "dcap"
+
+sys.insecure__allow_eventfd = true
+
+sgx.trusted_files = [
+  "file:/sgx/",
+  "file:/etc/ssl/certs/",
+  "file:/lib64/",
+  "file:/usr/include/",
+  "file:/usr/lib/ssl/certs/",
+  "file:/usr/{{ arch_libdir }}/",
+  "file:{{ arch_libdir }}/",
+  "file:{{ gramine.libos }}",
+  "file:{{ gramine.runtimedir() }}/",
+]
+
+sgx.allowed_files = [
+    "file:/etc/hosts",
+    "file:/etc/host.conf",
+    "file:/etc/gai.conf",
+    "file:/etc/resolv.conf",
+    "file:/etc/localtime",
+    "file:/etc/nsswitch.conf",
+]
+
+```
+
+and then above `RUN rm -f /measurement.txt && \` in the Dockerfile add `COPY ./switchboard-functions/02_srfx_usdc_oracle_function_rust/app.manifest.template /sgx/app.manifest.template`

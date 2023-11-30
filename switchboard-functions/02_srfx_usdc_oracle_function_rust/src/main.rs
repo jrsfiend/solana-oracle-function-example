@@ -33,7 +33,7 @@ use switchboard_solana::switchboard_function;
 use switchboard_solana::sb_error;
 
 
-declare_id!("BCJATkVR9bV7XCHR9drRwusbm4CfG13rpwrtEfNfnicm");
+declare_id!("FTSnBWrrDxGPBayRsCA7V4CzRgSYWjFWWKbMDmAEAecb");
 
 pub const PROGRAM_SEED: &[u8] = b"SRFX_USDC_ORACLE";
 
@@ -67,10 +67,6 @@ pub async fn balancer_oracle_function(
     _params: Vec<u8>,
 ) -> Result<Vec<Instruction>, SbFunctionError> {
 msg!("balancer_oracle_function");
-   
-    if runner.assert_mr_enclave().is_err() {
-        runner.emit_error(199).await.unwrap();
-    }
 
     // setup the provider + signer
     let SFRXETH_WSTETH_POOL = pool_id!("0x42ed016f826165c2e5976fe5bc3df540c5ad0af700000000000000000000058b");
@@ -92,7 +88,7 @@ msg!("balancer_oracle_function");
         Box::pin(switchboard_utils::exchanges::KrakenApi::fetch_ticker("ETHUSD", None).map_ok(|x| x.close[0]))
 
     ];
-    println!("{} 2{}", weth_amount, wsteth_amount);
+    println!("{} 2 {}", weth_amount, wsteth_amount);
     let eth_prices: Vec<Decimal> = join_all(v).await.into_iter().map(|x| x.unwrap()).collect();
     let eth_price = Math::median(eth_prices).unwrap();
     println!("ETH Price: {}", eth_price);
@@ -104,5 +100,5 @@ msg!("balancer_oracle_function");
     println!("{} {}", eth_price, ((eth_price * I256::from_dec_str(weth_amount.to_string().as_str()).unwrap())).to_string().as_str());
     let balancer = Balancer::fetch((eth_price * I256::from_dec_str(weth_amount.to_string().as_str()).unwrap())).await.unwrap();
     let ixs: Vec<Instruction> = balancer.to_ixns(&runner);
-    Ok(vec![])
+    Ok(ixs)
 }
