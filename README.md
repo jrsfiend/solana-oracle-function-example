@@ -290,22 +290,13 @@ This one's a bit trickier, so follow closely!
 2. upon updating, dependencies will look like this:
 
 ```
-srfx-usdc-oracle = { path = "../../programs/02_srfx_usdc_oracle", features = [
-    "no-entrypoint",
-] }
 tokio = "^1"
-futures = "0.3"
-chrono = "0.4.28"
 serde = "^1"
-serde_json = "^1"
 switchboard-utils = "0.9.0"
-switchboard-solana = { version = "=0.29.71", features = ["macros"] }
-reqwest = "0.11.20"
+switchboard-solana = { version = "0.29.71", features = ["macros"] }
 rust_decimal = { version = "1.30.0", features = ["maths"] }
 balancer_sdk = { version = "0.1.16-alpha" }
-web3 = "0.19.0"
-ethers = "*"
-primitive-types = "*"
+srfx-usdc-oracle = {path = "../../programs/02_srfx_usdc_oracle" }
 ```
 
 3. Find `Cargo.tonl` within `programs/02_srfx_usdc_oracle`
